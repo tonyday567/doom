@@ -1,0 +1,146 @@
+
+-- startup
+-- C-c C-s start haskell
+-- quit/restart
+-- :q in *tidal* buffer
+
+-- check repl is ok
+-- C-c C-e to run (multiple) line(s)
+
+-- emacs insert mode <i>
+-- emacs normal mode <esc>
+
+
+-- Open file
+-- <Space f f>
+-- Save file (in emacs norml mode)
+-- <Space f s>
+-- save file as...
+-- <Space f S>
+
+hush
+
+
+-- 0coast
+0input
+bdMara
+drumroll
+Guitar
+intergalactic
+intergalactic2
+intergalactic3
+keef
+kimBreaks
+kimNoise
+organ
+Piano
+Soulja
+vocals
+
+
+
+d1
+  $ striate 8
+  $ loopAt 4
+  $ s "organ*4"
+  # cut "1"
+
+d2
+  $ s "kimBreaks*2"
+  # cut "1"
+
+d1
+  $ striate 16
+  $ s "bd*2"
+
+d2
+  $ sometimes (|*| accelerate "0.5 2 0.75")
+  $ striate 2
+  $ s "bev*4"
+  # cut "1"
+
+hush
+
+d3
+  $ striate 32
+  $ s "gabba*120"
+  # speed "0.75"
+  # gain "0.75"
+
+d1 $ s "bd"
+
+d2 $ s "bd hh bd [hh hh]"
+
+d1 $ interlace (sound  "bd sn kurt") (every 3 rev $ sound  "bd sn:2")
+
+
+-- instrument not found errors for everything below ...
+
+d1
+  $ striate 8
+  $ s "opDrone*2"
+  # legato "2"
+  # speed "-0.5"
+  # cut "1"
+
+d1
+  $ s "gummiVox:1*2"
+  $ speed (fromString (mconcat (fmap ((" " ++) . show . (*0.1)) [1..8])))
+  # cut "1"
+
+d2
+  $ striate 2
+  $ rarely (# speed "0.25")
+  $ sometimes (density 10)
+  $ s "tabla*6"
+  # pan (rand)
+  # gain "4"
+
+hush
+
+d3
+  $ chunk 2 (hurry 2)
+  $ striate 3
+  $ s "opClick*7"
+  # n (irand 7)
+
+d4
+  $ hurry 2
+  $ s "opSn(6,8)"
+  # n "2 9 0 1 2 4"
+
+d5
+  $ almostNever (# speed "-4")
+  $ chunk 2 (hurry 2)
+  $ s "opTom2(4,8)"
+
+d6
+  $ every 4 (# n "2")
+  $ striate 8
+  $ rarely (|+| accelerate "0 -1")
+  $ sometimes (# speed "0.25")
+  $ s "opWeird*8"
+  # legato "1"
+  # gain "1.2"
+
+d7
+  $ density 16
+  $ striate 16
+  $ s "blood(4,4)"
+  # gain "1"
+  -- # shape "0.9"
+  # gain "1"
+  # delay "0.2"
+  # speed "1"
+  # shape "0.9"
+  -- # legato "1"
+
+d8
+  $ s "opHit(1,4)"
+  # n (irand 5)
+
+d3
+  $ density 0.5
+  $ s "opHit(1,5)"
+  # n (irand 6)
+

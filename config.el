@@ -74,158 +74,19 @@
 (setq-default truncate-lines nil
               indent-tabs-mode nil)
 
-(setq evil-kill-on-visual-paste nil
-      evil-want-C-u-scroll nil
-      evil-want-integration t
-      evil-want-keybinding nil
-      evil-move-cursor-back nil
-      evil-move-beyond-eol t
-      evil-highlight-closing-paren-at-point-states nil)
-
-(defun evil-forward-after-end (thing &optional count)
-  "Move forward to end of THING.
-The motion is repeated COUNT times."
-  (setq count (or count 1))
-  (cond
-   ((> count 0)
-    (forward-thing thing count))
-   (t
-    (unless (bobp) (forward-char -1))
-    (let ((bnd (bounds-of-thing-at-point thing))
-          rest)
-      (when bnd
-        (cond
-         ((< (point) (cdr bnd)) (goto-char (car bnd)))
-         ((= (point) (cdr bnd)) (cl-incf count))))
-      (condition-case nil
-          (when (zerop
-                 (setq rest
-                       (forward-thing thing count)))
-            (end-of-thing thing))
-        (error))
-      rest))))
-
-(evil-define-motion evil-forward-after-word-end (count &optional bigword)
-  "Move the cursor to the end of the COUNT-th next word.
-If BIGWORD is non-nil, move by WORDS."
-  :type inclusive
-  (let ((thing (if bigword 'evil-WORD 'evil-word))
-        (count (or count 1)))
-    (evil-signal-at-bob-or-eob count)
-    (evil-forward-after-end thing count)))
-
-(evil-define-motion evil-forward-after-WORD-end (count)
-  "Move the cursor to the end of the COUNT-th next WORD."
-  :type inclusive
-  (evil-forward-after-word-end count t))
-
-(evil-define-key 'motion 'global "e"  #'evil-forward-after-word-end)
-(evil-define-key 'motion 'global "E"  #'evil-forward-after-WORD-end)
-
-(setq vertico-sort-function #'vertico-sort-history-alpha)
-(setq avy-all-windows t)
-(setq-default spell-fu-mode nil)
-
-(map!
-   :leader "s f" #'consult-find
-   :leader "bo" #'consult-buffer-other-window
-   :leader "s y" #'consult-yank-from-kill-ring
-   "M-#" #'consult-register-load
-   "M-'" #'consult-register-store       ;orig. abbrev-prefix-mark (unrelated)
-   "C-M-#" #'consult-register
-   [remap jump-to-register] #'consult-register-load
-   ;; Other custom bindings
-   ;; M-g bindings (goto-map)
-   "M-g e" #'consult-compile-error
-   "M-g g" #'consult-goto-line          ;orig. goto-line
-   "M-g M-g" #'consult-goto-line        ;orig. goto-line
-   "M-g o" #'consult-outline            ;Alternative: consult-org-heading
-   "M-g m" #'consult-mark
-   "M-g k" #'consult-global-mark
-   "M-g I" #'consult-imenu-multi
-
-   ;; M-s bindings (search-map)
-   "M-s k" #'consult-keep-lines
-   "M-s u" #'consult-focus-lines
-
-   ;; Isearch integration
-   :map isearch-mode-map
-   "M-e" #'consult-isearch-history      ;orig. isearch-edit-string
-   "M-s e" #'consult-isearch-history    ;orig. isearch-edit-string
-   ;; Minibuffer history
-   :map minibuffer-local-map
-   "M-r" #'consult-history     ;orig. previous-matching-history-element
-   ;; Redundant with Doom's :config default bindings
-   :map global-map
-   "M-g f" #'consult-flymake
-   "M-s d" #'consult-find          ;does not cache files like Doom & Projectile
-   "M-s r" #'consult-ripgrep
-   "M-s D" #'consult-locate
-   [remap Info-search] #'consult-info
-   "M-X" #'consult-mode-command)
-
-(map! :map help-map "TAB" #'consult-info)
-
-(use-package orderless
-  :init
-  (setq completion-styles '(orderless)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles . (partial-completion))))))
-
-(after! git-gutter
-  (setq git-gutter:disabled-modes '(org-mode image-mode))
-  (global-git-gutter-mode -1)
-  (remove-hook 'find-file-hook #'+vc-gutter-init-maybe-h)
-  (map!
-   :leader
-   :nvm "tv" #'git-gutter-mode
-   :desc "git-gutter-mode")
-)
-
-(define-key isearch-mode-map (kbd "M-j") 'avy-isearch)
-
-(defun isearch-forward-other-window (prefix)
-    "Function to isearch-forward in other-window."
-    (interactive "P")
-    (unless (one-window-p)
-      (save-excursion
-        (let ((next (if prefix -1 1)))
-          (other-window next)
-          (isearch-forward)
-          (other-window (- next))))))
-
-(defun isearch-backward-other-window (prefix)
-  "Function to isearch-backward in other-window."
-  (interactive "P")
-  (unless (one-window-p)
-    (save-excursion
-      (let ((next (if prefix 1 -1)))
-        (other-window next)
-        (isearch-backward)
-        (other-window (- next))))))
-
-(define-key global-map (kbd "C-M-s") 'isearch-forward-other-window)
-(define-key global-map (kbd "C-M-r") 'isearch-backward-other-window)
-
-(setq erc-autojoin-channels-alist '(("libera.chat" "#haskell" "#emacs")))
-(setq erc-hide-list '("JOIN" "PART" "QUIT"))
-(setq erc-hide-timestamps t)
-(setq erc-autojoin-timing 'ident)
-;; (erc-prompt-for-nickserv-password nil)
-(setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
-                              "324" "329" "332" "333" "353" "477"))
-
 (map! ;; removes from kill ring
       [remap backward-kill-word] #'doom/delete-backward-word
       ;; replaces just-one-space
       "M-SPC" #'cycle-spacing
-      [remap ibuffer] #'ibuffer-jump
-      )
+      ;"M-g o" #'consult-outline
+      [remap ibuffer] #'ibuffer-jump)
 
-(map!
- (:map 'override
-   :nvm "gss" #'evil-avy-goto-char-timer
-   :nvm "gs/" #'evil-avy-goto-char-2))
+(setq doom-modeline-lsp-icon nil)
+(setq doom-modeline-buffer-encoding nil)
+(setq doom-modeline-buffer-state-icon nil)
+(setq doom-modeline-vcs-max-length 8)
+(setq doom-modeline-lsp nil)
+(setq doom-modeline-modal nil)
 
 (defun style/left-frame ()
   (interactive)
@@ -285,6 +146,230 @@ If BIGWORD is non-nil, move by WORDS."
    :nvm "tm" #'style/max-frame
    :nvm "td" #'style/left-frame)
 
+(setq evil-kill-on-visual-paste nil
+      evil-want-C-u-scroll nil
+      evil-want-integration t
+      evil-want-keybinding nil
+      evil-move-cursor-back nil
+      evil-move-beyond-eol t
+      evil-highlight-closing-paren-at-point-states nil)
+
+(defun evil-forward-after-end (thing &optional count)
+  "Move forward to end of THING.
+The motion is repeated COUNT times."
+  (setq count (or count 1))
+  (cond
+   ((> count 0)
+    (forward-thing thing count))
+   (t
+    (unless (bobp) (forward-char -1))
+    (let ((bnd (bounds-of-thing-at-point thing))
+          rest)
+      (when bnd
+        (cond
+         ((< (point) (cdr bnd)) (goto-char (car bnd)))
+         ((= (point) (cdr bnd)) (cl-incf count))))
+      (condition-case nil
+          (when (zerop
+                 (setq rest
+                       (forward-thing thing count)))
+            (end-of-thing thing))
+        (error))
+      rest))))
+
+(evil-define-motion evil-forward-after-word-end (count &optional bigword)
+  "Move the cursor to the end of the COUNT-th next word.
+If BIGWORD is non-nil, move by WORDS."
+  :type inclusive
+  (let ((thing (if bigword 'evil-WORD 'evil-word))
+        (count (or count 1)))
+    (evil-signal-at-bob-or-eob count)
+    (evil-forward-after-end thing count)))
+
+(evil-define-motion evil-forward-after-WORD-end (count)
+  "Move the cursor to the end of the COUNT-th next WORD."
+  :type inclusive
+  (evil-forward-after-word-end count t))
+
+(map!
+ :m "e" 'evil-forward-after-word-end
+ :m "E" 'evil-forward-after-WORD-end
+ :n "C-r"  nil
+ :n "U" 'evil-undo)
+
+(setq vertico-sort-function #'vertico-sort-history-alpha)
+
+(define-key isearch-mode-map (kbd "M-j") 'avy-isearch)
+
+(defun isearch-forward-other-window (prefix)
+    "Function to isearch-forward in other-window."
+    (interactive "P")
+    (unless (one-window-p)
+      (save-excursion
+        (let ((next (if prefix -1 1)))
+          (other-window next)
+          (isearch-forward)
+          (other-window (- next))))))
+
+(defun isearch-backward-other-window (prefix)
+  "Function to isearch-backward in other-window."
+  (interactive "P")
+  (unless (one-window-p)
+    (save-excursion
+      (let ((next (if prefix 1 -1)))
+        (other-window next)
+        (isearch-backward)
+        (other-window (- next))))))
+
+
+(define-key global-map (kbd "C-r") 'isearch-backward)
+(define-key global-map (kbd "C-M-s") 'isearch-forward-other-window)
+(define-key global-map (kbd "C-M-r") 'isearch-backward-other-window)
+(define-key global-map (kbd "M-s-s") 'isearch-forward-regexp)
+(define-key global-map (kbd "M-s-r") 'isearch-backward-regexp)
+
+(map!
+ (:map 'override
+   :nvm "M-j" #'evil-avy-goto-char-timer
+   :nvm "gss" #'evil-avy-goto-char-timer
+   :nvm "gs/" #'evil-avy-goto-char-2))
+
+(use-package! avy
+ :config
+ (setq avy-all-windows t)
+)
+
+(defun avy-action-embark (pt)
+  (unwind-protect
+      (save-excursion
+        (goto-char pt)
+        (embark-act))
+    (select-window
+     (cdr (ring-ref avy-ring 0))))
+  t)
+
+(setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
+
+(map!
+   "M-g o" #'consult-outline)
+
+(map!
+   :leader "s f" #'consult-find
+   :leader "b o" #'consult-buffer-other-window
+   :leader "s y" #'consult-yank-from-kill-ring
+   :leader "r l" #'consult-register-load
+   :leader "r s" #'consult-register-store
+   :leader "r r" #'consult-register
+   [remap jump-to-register] #'consult-register-load
+
+   ;; Isearch integration
+   :map isearch-mode-map
+   "M-e" #'consult-isearch-history      ;orig. isearch-edit-string
+   "M-s e" #'consult-isearch-history    ;orig. isearch-edit-string
+   ;; Minibuffer history
+   :map minibuffer-local-map
+   "M-r" #'consult-history     ;orig. previous-matching-history-element
+   ;; Redundant with Doom's :config default bindings
+   :map global-map
+   [remap Info-search] #'consult-info
+   "M-X" #'consult-mode-command)
+
+(map! :map help-map "TAB" #'consult-info)
+
+(remove-hook 'text-mode-hook #'spell-fu-mode)
+;;(setq spell-fu-ignore-modes (list 'org-mode))
+
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles . (partial-completion))))))
+
+(setq erc-autojoin-channels-alist '(("libera.chat" "#haskell" "#emacs")))
+(setq erc-hide-list '("JOIN" "PART" "QUIT"))
+(setq erc-hide-timestamps t)
+(setq erc-autojoin-timing 'ident)
+;; (erc-prompt-for-nickserv-password nil)
+(setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
+                              "324" "329" "332" "333" "353" "477"))
+
+(after! latex
+ (setq org-latex-packages-alist '(("" "tikz-cd" t) ("" "tikz" t)))
+)
+
+(after! flycheck
+  (map!
+    :n "M-n" 'flycheck-next-error
+    :n "M-p" 'flycheck-previous-error))
+
+(after! eglot
+    (push  '(haskell-ng-mode . ("haskell-language-server-wrapper" "--lsp")) eglot-server-programs)
+)
+
+(after! org
+  :config
+  (setq
+   org-log-into-drawer t
+   org-startup-folded t
+   org-support-shift-select t
+   org-insert-heading-respect-content t
+   org-startup-with-inline-images t
+   org-cycle-include-plain-lists 'integrate
+   ;; https://github.com/syl20bnr/spacemacs/issues/13465
+   org-src-tab-acts-natively nil
+   ;; from org-modern example
+   org-auto-align-tags nil
+   org-tags-column 0
+   org-fold-catch-invisible-edits 'show-and-error
+   org-special-ctrl-a/e t
+   org-hide-emphasis-markers t
+   org-pretty-entities t
+   org-ellipsis "…"
+   org-agenda-tags-column 0
+   org-agenda-block-separator ?─)
+   (remove-hook 'org-mode-hook 'flyspell-mode)
+   (setq-default org-todo-keywords '((sequence "ToDo(t)" "Next(n)" "Blocked(b)" "|" "Done(d!)")))
+)
+
+(after! org-agenda
+  :config
+  (setq org-agenda-span 'week
+        org-agenda-use-time-grid nil
+        org-agenda-start-day "-0d"
+        org-agenda-block-separator nil
+        org-agenda-skip-scheduled-if-done t
+        org-agenda-inhibit-startup nil
+        org-agenda-show-future-repeats nil
+        org-agenda-compact-blocks t
+        org-agenda-window-setup 'other-window
+        org-agenda-show-all-dates nil
+        org-agenda-prefix-format
+         '((agenda . " %-24t")
+           (todo . " %-24(org-name-short)")))
+  (setq org-agenda-custom-commands
+         '(("n" "next"
+            ((agenda "" ((org-agenda-overriding-header "")))
+             (todo "Next" ((org-agenda-overriding-header "Next")))))
+           ("z" "z-agenda"
+            ((agenda "" ((org-agenda-overriding-header "")))
+             (todo "Next" ((org-agenda-overriding-header "Next")))
+             (todo "Blocked" ((org-agenda-overriding-header "Blocked")))
+             (todo "ToDo" ((org-agenda-overriding-header "ToDo")))))))
+  (map! :leader "oz" #'agenda-z))
+
+(defun org-name-short ()
+  (interactive)
+  (let
+      ((xs (seq-subseq (file-name-split (buffer-file-name)) -2)))
+      (concat
+      (concat (nth 0 xs) "/")
+      (file-name-base
+      (nth 1 xs)))))
+
+(defun agenda-z ()
+  (interactive)
+  (org-agenda nil "z"))
+
 (after! org
   (setq
    org-capture-templates
@@ -306,81 +391,6 @@ If BIGWORD is non-nil, move by WORDS."
 
 (after! org
   :config
-  (setq
-   org-startup-folded 'overview
-   org-support-shift-select t
-   org-insert-heading-respect-content t
-   org-startup-with-inline-images t
-   org-cycle-include-plain-lists 'integrate
-   ;; https://github.com/syl20bnr/spacemacs/issues/13465
-   org-src-tab-acts-natively nil
-   ;; from org-modern example
-   org-auto-align-tags nil
-   org-tags-column 0
-   org-fold-catch-invisible-edits 'show-and-error
-   org-special-ctrl-a/e t
-   org-hide-emphasis-markers t
-   org-pretty-entities t
-   org-ellipsis "…"
-   org-agenda-tags-column 0
-   org-agenda-block-separator ?─)
-   (remove-hook 'org-mode-hook 'flyspell-mode)
-   (setq-default org-todo-keywords '((sequence "ToDo(t)" "Next(n)" "Blocked(b)" "|" "Done(d!)")))
-)
-
-(map! (:after evil-org
-       :map evil-org-mode-map
-       :n "gk" (cmd! (if (org-at-heading-p)
-                         (org-backward-element)
-                       (evil-previous-visual-line)))
-       :n "gj" (cmd! (if (org-at-heading-p)
-                         (org-forward-element)
-                       (evil-next-visual-line)))))
-
-(after! org-agenda
-  :config
-  (setq org-agenda-files
-   '("~/org")))
-
-(after! org-agenda
-  :config
-  (setq org-agenda-span 'week
-        org-agenda-use-time-grid nil
-        org-agenda-start-day "-0d"
-        org-agenda-block-separator nil
-        org-agenda-show-future-repeats nil
-        org-agenda-compact-blocks t
-        org-agenda-window-setup 'other-window
-        org-agenda-show-all-dates nil
-        org-agenda-prefix-format
-         '((agenda . " %-12t")
-           (todo . " %-12:c")
-           (tags . " %-12:c")
-           (search . " %-12:c")))
-  (add-to-list 'org-modules 'org-habit)
-  (require 'org-habit)
-  (setq org-habit-graph-column 32)
-  (setq org-habit-following-days 2)
-  (setq org-habit-preceding-days 20)
-  (setq org-log-into-drawer t)
-  (setq org-agenda-custom-commands
-         '(("z" "custom agenda"
-            ((agenda "" ((org-agenda-span 'week)
-                         (org-agenda-overriding-header "")))
-             (alltodo "" ((org-agenda-overriding-header "")
-                          ))))))
-  (map! :leader "oz" #'agenda-z)
-  (map! :map org-agenda-mode-map
-        :localleader
-        (:nvm "l" #'org-agenda-log-mode
-         :nvm "j" #'org-random-todo-goto-new)))
-
-(defun agenda-z ()
-  (interactive)
-  (org-agenda nil "z"))
-
-(after! org
-  :config
   (defun display-ansi-colors ()
     (interactive)
     (let ((inhibit-read-only t))
@@ -395,6 +405,7 @@ If BIGWORD is non-nil, move by WORDS."
           :nvm "s" #'org-yank-into-new-block-sh
           :nvm "h" #'org-yank-into-new-block-haskell
           :nvm "n" #'org-new-block-haskell
+          :nvm "z" (cmd! (org-new-block ""))
           :nvm "q" #'org-yank-into-new-quote)))
 
 (defun org-yank-into-new-block (&optional template)
@@ -457,3 +468,119 @@ If BIGWORD is non-nil, move by WORDS."
 (defun org-yank-into-new-quote ()
   (interactive)
   (org-yank-into-new-block "quote"))
+
+(after! org
+  (use-package! org-random-todo
+    :defer-incrementally t
+    :commands (org-random-todo-goto-new)
+    :config
+    (map! :map org-mode-map
+        :localleader
+        (:nvm "j" #'org-random-todo-goto-new))))
+
+(after! org-agenda
+  (map! :map org-agenda-mode-map
+        :localleader
+        (:nvm "j" #'org-random-todo-goto-new)))
+
+(after! org
+  :config
+  (use-package backtrace)
+  (setq org-hugo-base-dir "~/site"
+        org-hugo-auto-set-lastmod t
+        org-hugo-use-code-for-kbd t
+        org-hugo-date-format "%Y-%m-%d")
+    (map! :map org-mode-map
+        :localleader
+        (:nvm "lp" #'org-hugo-export-wim-to-md)))
+
+(use-package! beacon
+  :config (beacon-mode 1))
+
+(use-package! iscroll
+  :config (iscroll-mode 1))
+
+(use-package! diminish
+  :config
+  (diminish 'haskell-ng-mode))
+
+(use-package! minions
+  :config
+)
+
+(after! treesit
+(use-package! haskell-ng-mode
+  :diminish
+  :load-path "~/.config/doom/repos/haskell-ng-mode"
+  :init
+  (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
+  ; (add-to-list 'treesit-language-source-alist '(cabal ("https://gitlab.com/magus/tree-sitter-cabal.git" "main" "src" "gcc-13" "c++-13")))
+  (add-to-list 'treesit-language-source-alist '(cabal ("https://gitlab.com/magus/tree-sitter-cabal.git")))
+  (add-to-list 'major-mode-remap-alist '(haskell-mode . haskell-ng-mode))
+  (add-to-list 'major-mode-remap-alist '(cabal-mode . cabal-ng-mode))
+  (defalias 'haskell-mode #'haskell-ng-mode)
+  (defalias 'cabal-mode #'cabal-ng-mode)
+  :hook
+  (haskell-ng-mode . lsp-deferred)
+  (haskell-ng-mode . (lambda () (setq-local tab-width 2)))
+  :config
+  (use-package! ormolu)
+  (map! :localleader
+        :map haskell-ng-mode-map
+        :nvm "'" #'haskell-ng-repl-run
+        (:prefix ("=" . "format")
+         :nvm "=" #'ormolu-format-buffer)
+        (:prefix ("g" . "goto")
+         :nvm "p" #'pop-tag-mark
+         :nvm "d" #'evil-goto-definition
+         :nvm "h" #'lsp-describe-thing-at-point
+         :nvm "r" #'xref-find-definitions
+         :nvm "t" #'lsp-find-type-definition
+         :nvm "T" #'lsp-goto-type-definition)
+        (:prefix ("t" . "toggle")
+         :nvm "l" #'lsp-lens-mode)
+        (:prefix ("," . "backend")
+         :nvm "e" #'eglot
+         :nvm "l" #'lsp
+         :nvm "r" #'lsp-workspace-restart
+         :nvm "q" #'lsp-workspace-shutdown))
+  (map! :localleader
+        :map cabal-ng-mode-map
+        (:prefix ("=" . "format")
+         :nvm "=" #'cabal-format-buffer
+         :nvm "r" #'cabal-format-region))))
+
+(require 'haskell-ng-mode)
+
+(use-package! ob-haskell-ng
+  :load-path "~/.config/doom/repos/ob-haskell-ng"
+  :config
+  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
+)
+
+(use-package! combobulate)
+
+(after! lsp
+(use-package! lsp-haskell
+  :config
+  (setq
+        lsp-haskell-brittany-on nil
+        lsp-haskell-floskell-on nil
+        lsp-haskell-fourmolu-on nil
+        lsp-haskell-stylish-haskell-on nil
+        lsp-haskell-retrie-on nil
+        lsp-haskell-plugin-import-lens-code-actions-on nil
+        lsp-haskell-plugin-ghcide-type-lenses-config-mode nil
+        lsp-haskell-plugin-ghcide-type-lenses-global-on nil
+        lsp-haskell-plugin-import-lens-code-lens-on nil)))
+
+(after! treesit
+(defun ts-inspect ()
+  (interactive)
+  (when-let* ((nap (treesit-node-at (point))))
+    (message "%S - %S" nap (treesit-node-type nap))))
+
+(defun ts-query-root (query)
+  (interactive "sQuery: ")
+  (let ((ss0 (treesit-query-capture (treesit-buffer-root-node) query)))
+    (message "%S" ss0))))

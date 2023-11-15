@@ -49,5 +49,28 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
-(package! org-super-agenda)
-(package! origami)
+(package! org-random-todo)
+(package! beacon)
+(package! iscroll)
+
+(package! lsp-haskell
+  :recipe (:host github
+           :repo "magthe/lsp-haskell"
+           :branch "master"))
+
+(package! combobulate)
+(package! ormolu)
+(package! minions)
+(package! diminish)
+(package! tidal
+  :recipe (:host github :repo "tidalcycles/Tidal"))
+
+;; (package! haskell-ng-mode
+;;   :recipe (:type git
+;;            :repo "git@gitlab.com:tonyday567/haskell-ng-mode.git"
+;;            :branch "main"))
+
+;;(package! haskell-ng-mode
+;;  :recipe (:local-repo "~/.config/doom/repos/haskell-ng-mode"
+;;  :build (:not compile)))
+
