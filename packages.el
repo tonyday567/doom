@@ -63,7 +63,11 @@
 (package! minions)
 (package! diminish)
 (package! tidal
-  :recipe (:host github :repo "tidalcycles/Tidal"))
+  :recipe (:host github :repo "tonyday567/Tidal" :branch "haskell-ng"))
+
+(package! discover-my-major)
+(package! aas)
+(package! graphviz-dot-mode)
 
 ;; (package! haskell-ng-mode
 ;;   :recipe (:type git

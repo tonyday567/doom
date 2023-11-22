@@ -78,7 +78,6 @@
       [remap backward-kill-word] #'doom/delete-backward-word
       ;; replaces just-one-space
       "M-SPC" #'cycle-spacing
-      ;"M-g o" #'consult-outline
       [remap ibuffer] #'ibuffer-jump)
 
 (setq doom-modeline-lsp-icon nil)
@@ -145,6 +144,15 @@
    :leader
    :nvm "tm" #'style/max-frame
    :nvm "td" #'style/left-frame)
+
+(map!
+ (:map 'override
+   :v "v" #'er/expand-region
+   :v "V" #'er/contract-region))
+(map!
+ (:map 'override
+   :m "j" #'evil-next-visual-line
+   :m "k" #'evil-previous-visual-line))
 
 (setq evil-kill-on-visual-paste nil
       evil-want-C-u-scroll nil
@@ -221,7 +229,6 @@ If BIGWORD is non-nil, move by WORDS."
         (isearch-backward)
         (other-window (- next))))))
 
-
 (define-key global-map (kbd "C-r") 'isearch-backward)
 (define-key global-map (kbd "C-M-s") 'isearch-forward-other-window)
 (define-key global-map (kbd "C-M-r") 'isearch-backward-other-window)
@@ -251,30 +258,14 @@ If BIGWORD is non-nil, move by WORDS."
 (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
 
 (map!
-   "M-g o" #'consult-outline)
-
-(map!
    :leader "s f" #'consult-find
+   :leader :desc "consult-outline" "s o" #'consult-outline
    :leader "b o" #'consult-buffer-other-window
    :leader "s y" #'consult-yank-from-kill-ring
    :leader "r l" #'consult-register-load
    :leader "r s" #'consult-register-store
    :leader "r r" #'consult-register
-   [remap jump-to-register] #'consult-register-load
-
-   ;; Isearch integration
-   :map isearch-mode-map
-   "M-e" #'consult-isearch-history      ;orig. isearch-edit-string
-   "M-s e" #'consult-isearch-history    ;orig. isearch-edit-string
-   ;; Minibuffer history
-   :map minibuffer-local-map
-   "M-r" #'consult-history     ;orig. previous-matching-history-element
-   ;; Redundant with Doom's :config default bindings
-   :map global-map
-   [remap Info-search] #'consult-info
-   "M-X" #'consult-mode-command)
-
-(map! :map help-map "TAB" #'consult-info)
+   [remap jump-to-register] #'consult-register-load)
 
 (remove-hook 'text-mode-hook #'spell-fu-mode)
 ;;(setq spell-fu-ignore-modes (list 'org-mode))
@@ -508,6 +499,35 @@ If BIGWORD is non-nil, move by WORDS."
   :config
 )
 
+(use-package! discover-my-major)
+
+(use-package! aas
+    :hook (haskell-ng-mode . aas-activate-for-major-mode)
+    :hook (org-mode . aas-activate-for-major-mode)
+    :config
+        (aas-set-snippets 'org-mode
+            ;; expand unconditionally
+            ";-" "- [ ] "
+            ";o-" "ō"
+            ";i-" "ī"
+            ";a-" "ā"
+            ";u-" "ū"
+            ";e-" "ē")
+        (aas-set-snippets 'haskell-ng-mode
+            "On" "O(n)"
+            "O1" "O(1)"
+            "Olog" "O(\\log n)"
+            "Olon" "O(n \\log n)"
+            ;; Use YAS/Tempel snippets with ease!
+            "amin" '(yas "\\argmin_{$1}") ; YASnippet snippet shorthand form
+            ;; bind to functions!
+            ";ig" #'insert-register))
+
+(use-package graphviz-dot-mode
+  :config
+  (setq graphviz-dot-indent-width 4))
+  (setq graphviz-dot-preview-extension "svg")
+
 (after! treesit
 (use-package! haskell-ng-mode
   :diminish
@@ -521,7 +541,7 @@ If BIGWORD is non-nil, move by WORDS."
   (defalias 'haskell-mode #'haskell-ng-mode)
   (defalias 'cabal-mode #'cabal-ng-mode)
   :hook
-  (haskell-ng-mode . lsp-deferred)
+  (haskell-ng-mode . eglot-ensure)
   (haskell-ng-mode . (lambda () (setq-local tab-width 2)))
   :config
   (use-package! ormolu)
@@ -530,20 +550,13 @@ If BIGWORD is non-nil, move by WORDS."
         :nvm "'" #'haskell-ng-repl-run
         (:prefix ("=" . "format")
          :nvm "=" #'ormolu-format-buffer)
-        (:prefix ("g" . "goto")
-         :nvm "p" #'pop-tag-mark
-         :nvm "d" #'evil-goto-definition
-         :nvm "h" #'lsp-describe-thing-at-point
-         :nvm "r" #'xref-find-definitions
-         :nvm "t" #'lsp-find-type-definition
-         :nvm "T" #'lsp-goto-type-definition)
-        (:prefix ("t" . "toggle")
-         :nvm "l" #'lsp-lens-mode)
+        (:prefix ("c" . "code")
+         :nvm "a" #'eglot-code-actions)
         (:prefix ("," . "backend")
          :nvm "e" #'eglot
          :nvm "l" #'lsp
-         :nvm "r" #'lsp-workspace-restart
-         :nvm "q" #'lsp-workspace-shutdown))
+         :nvm "r" #'eglot-reconnect
+         :nvm "q" #'eglot-shutdown))
   (map! :localleader
         :map cabal-ng-mode-map
         (:prefix ("=" . "format")
@@ -560,20 +573,6 @@ If BIGWORD is non-nil, move by WORDS."
 
 (use-package! combobulate)
 
-(after! lsp
-(use-package! lsp-haskell
-  :config
-  (setq
-        lsp-haskell-brittany-on nil
-        lsp-haskell-floskell-on nil
-        lsp-haskell-fourmolu-on nil
-        lsp-haskell-stylish-haskell-on nil
-        lsp-haskell-retrie-on nil
-        lsp-haskell-plugin-import-lens-code-actions-on nil
-        lsp-haskell-plugin-ghcide-type-lenses-config-mode nil
-        lsp-haskell-plugin-ghcide-type-lenses-global-on nil
-        lsp-haskell-plugin-import-lens-code-lens-on nil)))
-
 (after! treesit
 (defun ts-inspect ()
   (interactive)
@@ -584,3 +583,22 @@ If BIGWORD is non-nil, move by WORDS."
   (interactive "sQuery: ")
   (let ((ss0 (treesit-query-capture (treesit-buffer-root-node) query)))
     (message "%S" ss0))))
+
+(after! haskell-ng-mode
+  (map! :localleader
+        :map haskell-ng-mode-map
+        "n" #'flymake-goto-next-error
+        "p" #'flymake-goto-prev-error
+        "e" #'consult-flymake))
+
+(use-package! haskell-lite
+  :load-path "~/.config/doom/repos/haskell-lite"
+)
+
+(use-package! tidal
+    :init
+    (progn
+      (setq tidal-interpreter "ghci")
+      (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
+      (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
+      ))

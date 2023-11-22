@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: Split a haskell source block.
-# key: sspl
-# --
-#+end_src
-
-#+begin_src haskell :results output

@@ -2,84 +2,94 @@
 
 [[https://github.com/doomemacs/doomemacs/blob/master/docs/getting_started.org][doom - getting started]]
 
-* Next emacs configuration todo's
-** Add Tidal
+[[https://docs.doomemacs.org/latest/][Documentation - Doom Emacs latest documentation]]
 
-- [ ] install tidal-2.0
+My personal doom emacs configuration.
 
-[[https://github.com/tidalcycles/Tidal][GitHub - tidalcycles/Tidal: Pattern language]]
-
-- [ ] get together installation notes
-
-** turn- on haskell-snippets
-** turn off lsp-mode
-** audit non-standard binds
-** audit configuration examples
-** transfer old haskell settings
-** remove company mode from ghci comint
 * Non-standard binds
+** global map
 
-| key         | command                      |
-|-------------+------------------------------|
-| ~v~ ~V~         | expands and contracts region |
-| ~SPC s f~     | consult-find                 |
-| ~SPC s y~     | consult-yank-from-kill-ring  |
-| ~M-SPC~       | cycle-spacing                |
-| ~M-j~         | avy-goto-char-timer          |
-| ~SPC m l c~   | org-clip-link                |
-| ~gk~ ~gj~       | up and down an org header    |
-| ~SPC m z~     | yank to block commands       |
-| ~SPC m l p~   | org-hugo-export-wim-to-md    |
-| ~SPC m n~     | flycheck-next-error          |
-| ~SPC m p~     | flycheck-previous-error      |
-| ~M-w~         | easy-kill                    |
-| ~C-x C-d~     | consult-dir                  |
-| ~C-x C-j~     | consult-dir-jump-file        |
-| ~M-up~ ~M-down~ | Move line up/down            |
-| ~C-;~         | embark-act                   |
-| ~SPC t m~     | style/max-frame              |
-| ~SPC t d~     | style/default-frame          |
+| key     | command                     |
+|---------+-----------------------------|
+| ~v~ ~V~     | expand/contract region      |
+| ~SPC s o~ | consult-outline             |
+| ~SPC s f~ | consult-find                |
+| ~SPC s y~ | consult-yank-from-kill-ring |
+| SPC b o | consult-buffer-other-window |
+| SPC r l | consult-register-load       |
+| SPC r s | consult-register-store      |
+| SPC r r | consult-register            |
+| ~M-SPC~   | cycle-spacing               |
+| ~SPC t m~ | style/max-frame             |
+| ~SPC t d~ | style/default-frame         |
+| ~M-j~     | evil-avy-goto-char-timer    |
+| ~gss~     | evil-avy-goto-char-timer    |
+| ~gs/~     | evil-avy-goto-char-2        |
+| ~C-r~     | isearch-backwards           |
+| ~M-s-s~   | isearch-forward-regexp      |
+| ~M-j~     | avy-isearch                 |
+| M-n     | flycheck-next-error         |
+| M-p     | flycheck-previous-error     |
+|         |                             |
+
+** org map
+
+| ~SPC m l p~ | org-hugo-export-wim-to-md |
+| ~SPC m z~   | yank into block commands  |
+| SPC m j   | org-random-todo-goto-new  |
+|           |                           |
+
+** haskell-ng map
+
+| SPC m n   | flymake-goto-next-error |
+| SPC m p   | flymake-goto-prev-error |
+| SPC m e   | consult-flymake         |
+| SPC m '   | haskell-ng-repl-run     |
+| SPC m = = | ormolu-format-buffer    |
+| SPC m c a | eglot-code-actions      |
+| SPC m , e | eglot                   |
+| SPC m , l | lsp                     |
+| SPC m , r | eglot-reconnect         |
+| SPC m , q | eglot-shutdown          |
+| SPC m = = | cabal-format-buffer     |
+| SPC m = r | cabal-format-region     |
+|           |                         |
 
 * Configuration Examples
 
 Most of my doom config, and much of my work flow has been put together from reading and stealing from other configs.
 
 A useful technique is to do an advanced github search of these repos, together with the main doom-emacs repository. An example:
-[[https://github.com/search?q=org-modern+repo%3Adoomemacs%2Fdoomemacs+repo%3Ahlissner%2F.doom.d+repo%3Afloscr%2Femacs.d+repo%3Adangirsh%2F.doom.d%2F+repo%3ALemonBreezes%2F.doom.d+repo%3Azzamboni%2Fdot-emacs+repo%3Ajethrokuan%2Fdots+repo%3Asachac%2F.emacs.d%2F+repo%3Adaviwil%2Fdotfiles+repo%3Afrap%2Femacs-literate+repo%3AMatthewZMD%2F.emacs.d+repo%3Akarthink%2F.emacs.d&type=Code][Example search on org-modern]]
+
+[[https://github.com/search?q=vertico+(repo%3Adoomemacs%2Fdoomemacs+OR+repo%3Ahlissner%2F.doom.d+OR+repo%3Afloscr%2Femacs.d+OR+repo%3ALemonBreezes%2Fcyber-angel-emacs+OR+repo%3Adangirsh%2F.doom.d+OR+repo%3Atecosaur%2Femacs-config+OR+repo%3Azzamboni%2Fdot-emacs+OR+repo%3AMatthewZMD%2F.emacs.d+OR+repo%3Akarthink%2F.emacs.d+OR+repo%3Aprotesilaos%2Fdotfiles+OR+repo%3Asachac%2F.emacs.d)&type=code&ref=advsearch][Example search on vertico]]
 
 ** doom'ish
 
-[[https://github.com/LemonBreezes/cae-emacs][GitHub - LemonBreezes/cae-emacs: My new personal Doom Emacs configuration]]
+[[https://github.com/LemonBreezes/cae-emacs][LemonBreezes]]
 
-[[https://github.com/floscr/emacs.d][GitHub - floscr/emacs.d: My emacs config]]
+[[https://github.com/floscr/emacs.d][floscr]]
 
-[[https://github.com/dangirsh/.doom.d][GitHub - dangirsh/.doom.d: A literate Doom Emacs config]]
+[[https://github.com/dangirsh/.doom.d][dangirsh]]
 
-[[https://github.com/hlissner/doom-emacs-private][GitHub - hlissner/doom-emacs-private: My private module for Doom Emacs]]
+[[https://github.com/hlissner/doom-emacs-private][hlissner]]
 
-[[https://github.com/jethrokuan/dots/blob/master/.doom.d/config.el][dots/config.el at master · jethrokuan/dots · GitHub]]
+[[https://github.com/tecosaur/emacs-config/][tecosaur]]
 
-[[https://github.com/tecosaur/emacs-config/][GitHub - tecosaur/emacs-config: My configuration for Doom Emacs]]
+[[https://github.com/zzamboni/dot-doom/][zzamboni]]
 
 ** from-scratch'ish
 
-[[https://zzamboni.org/post/my-emacs-configuration-with-commentary/][zzamboni.org | My Emacs Configuration, With Commentary]]
+[[https://github.com/sachac/.emacs.d][sachac]]
 
-[[https://sachachua.com/dotemacs/][Sacha Chua's Emacs configuration]]
+[[https://github.com/MatthewZMD/.emacs.d][MatthewZMD]]
 
-[[https://github.com/daviwil/dotfiles][GitHub - daviwil/dotfiles: The path to GNUrvana]]
+[[https://github.com/karthink/.emacs.d][karthink]]
 
-[[https://github.com/MatthewZMD/.emacs.d][GitHub - MatthewZMD/.emacs.d: M-EMACS, a full-featured GNU Emacs configuratio...]]
-
-[[https://github.com/karthink/.emacs.d][GitHub - karthink/.emacs.d: My personal emacs settings]]
-
-https://protesilaos.com/emacs/dotemacs
+[[https://github.com/protesilaos/dotfiles][protesilaos]]
 
 ** haskell'ish
 
-[[https://gitlab.com/magus/mes][Magnus Therning / My Emacs Setup · GitLab]]
-
-[[https://gitlab.com/jjba-projects/dotfiles/-/blob/master/void/emacs/my-lisp/init-dev.org?ref_type=heads][void/emacs/my-lisp/init-dev.org · master · JJBA Projects / Dotfiles · GitLab]]
+[[https://gitlab.com/magus/mes][magus]]
 
 * Front Matter
 
@@ -178,12 +188,11 @@ Global and standard doom library tweaks.
       [remap backward-kill-word] #'doom/delete-backward-word
       ;; replaces just-one-space
       "M-SPC" #'cycle-spacing
-      ;"M-g o" #'consult-outline
       [remap ibuffer] #'ibuffer-jump)
 
 #+end_src
 
-*** doom-modeline
+** doom-modeline
 
 #+begin_src elisp
 (setq doom-modeline-lsp-icon nil)
@@ -193,7 +202,6 @@ Global and standard doom library tweaks.
 (setq doom-modeline-lsp nil)
 (setq doom-modeline-modal nil)
 #+end_src
-
 
 ** default frame
 
@@ -258,6 +266,17 @@ Global and standard doom library tweaks.
 #+end_src
 
 ** evil
+
+#+begin_src elisp
+(map!
+ (:map 'override
+   :v "v" #'er/expand-region
+   :v "V" #'er/contract-region))
+(map!
+ (:map 'override
+   :m "j" #'evil-next-visual-line
+   :m "k" #'evil-previous-visual-line))
+#+end_src
 
 #+begin_src elisp
 (setq evil-kill-on-visual-paste nil
@@ -346,7 +365,6 @@ If BIGWORD is non-nil, move by WORDS."
         (isearch-backward)
         (other-window (- next))))))
 
-
 (define-key global-map (kbd "C-r") 'isearch-backward)
 (define-key global-map (kbd "C-M-s") 'isearch-forward-other-window)
 (define-key global-map (kbd "C-M-r") 'isearch-backward-other-window)
@@ -355,6 +373,8 @@ If BIGWORD is non-nil, move by WORDS."
 #+end_src
 
 *** avy
+
+[[https://karthinks.com/software/avy-can-do-anything/][Avy can do anything | Karthinks]]
 
 Flipping gss and gs/
 
@@ -366,7 +386,6 @@ Flipping gss and gs/
    :nvm "gs/" #'evil-avy-goto-char-2))
 #+end_src
 
-[[https://karthinks.com/software/avy-can-do-anything/][Avy can do anything | Karthinks]]
 
 #+begin_src elisp
 (use-package! avy
@@ -390,32 +409,14 @@ Flipping gss and gs/
 
 #+begin_src elisp
 (map!
-   "M-g o" #'consult-outline)
-#+end_src
-
-#+begin_src elisp
-(map!
    :leader "s f" #'consult-find
+   :leader :desc "consult-outline" "s o" #'consult-outline
    :leader "b o" #'consult-buffer-other-window
    :leader "s y" #'consult-yank-from-kill-ring
    :leader "r l" #'consult-register-load
    :leader "r s" #'consult-register-store
    :leader "r r" #'consult-register
-   [remap jump-to-register] #'consult-register-load
-
-   ;; Isearch integration
-   :map isearch-mode-map
-   "M-e" #'consult-isearch-history      ;orig. isearch-edit-string
-   "M-s e" #'consult-isearch-history    ;orig. isearch-edit-string
-   ;; Minibuffer history
-   :map minibuffer-local-map
-   "M-r" #'consult-history     ;orig. previous-matching-history-element
-   ;; Redundant with Doom's :config default bindings
-   :map global-map
-   [remap Info-search] #'consult-info
-   "M-X" #'consult-mode-command)
-
-(map! :map help-map "TAB" #'consult-info)
+   [remap jump-to-register] #'consult-register-load)
 #+end_src
 
 *** spell-fu
@@ -583,8 +584,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
     (set-company-backend! 'org-mode '(:separate company-yasnippet company-dabbrev))))
 #+end_src
 
-** babel
-*** yank-into-block
+** yank-into-block
 
 #+begin_src elisp
 (after! org
@@ -670,7 +670,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 ** org-random-todo
 
-[[https://github.com/unhammer/org-random-todo][GitHub - unhammer/org-random-todo: 🍃 Pop up a random TODO from your agenda ev...]]
+[[https://github.com/unhammer/org-random-todo][unhammer/org-random-todo]]
 
 #+begin_src elisp
 (after! org
@@ -732,7 +732,7 @@ A ToDo in the header makes the post a draft.
 * Non-standard packages
 ** beacon
 
-[[https://github.com/Malabarba/beacon][GitHub - Malabarba/beacon: A light that follows your cursor around so you don...]]
+[[https://github.com/Malabarba/beacon][Malabarba/beacon]]
 
 #+begin_src elisp
 (use-package! beacon
@@ -741,7 +741,7 @@ A ToDo in the header makes the post a draft.
 
 ** iscroll
 
-[[https://github.com/casouri/iscroll][GitHub - casouri/iscroll: Smooth scrolling over images in Emacs]]
+[[https://github.com/casouri/iscroll][casouri/iscroll]]
 
 #+begin_src elisp
 (use-package! iscroll
@@ -758,254 +758,63 @@ A ToDo in the header makes the post a draft.
 
 ** minions
 
+[[https://github.com/tarsius/minions][GitHub - tarsius/minions: A minor-mode menu for the mode line]]
+
 #+begin_src elisp
 (use-package! minions
   :config
 )
 #+end_src
 
-* old haskell (off)
-** lsp tweaks
-#+begin_src elisp :tangle no
-;; haskell
-;;
-(after! haskell
-  (setq
-   haskell-font-lock-symbols t
-   ;; company-idle-delay 0.5
-   haskell-interactive-popup-errors nil
-   lsp-lens-enable nil
-   lsp-ui-sideline-show-code-actions nil
-   lsp-enable-folding nil
-   lsp-response-timeout 120
-   lsp-ui-sideline-enable nil
-   lsp-haskell-plugin-import-lens-code-actions-on nil
-   lsp-haskell-plugin-ghcide-type-lenses-config-mode nil
-   lsp-haskell-plugin-ghcide-type-lenses-global-on nil
-   lsp-haskell-plugin-import-lens-code-lens-on nil
-   lsp-ui-doc-enable nil
-   ;; lsp-enable-symbol-highlighting nil
-   +lsp-prompt-to-install-server 'quiet
-   lsp-modeline-diagnostics-scope :project
-   ;; lsp-modeline-code-actions-segments '(count icon)
-   flycheck-check-syntax-automatically '(save)
-   lsp-haskell-brittany-on nil
-   lsp-haskell-floskell-on nil
-   lsp-haskell-fourmolu-on nil
-   lsp-haskell-stylish-haskell-on nil
-   lsp-haskell-retrie-on nil
-   ;; lsp-completion-provider :none
-   haskell-process-show-debug-tips nil
-   haskell-process-suggest-remove-import-lines nil
-   haskell-process-suggest-restart nil
-   ;;haskell-process-type 'stack-ghci
-   haskell-process-type 'cabal-repl
-   )
+** discover-my-major
 
-  (haskell-indentation-mode -1)
-  (setq-local tab-stop-list '(2 4))
-  (setq-local indent-line-function 'indent-relative)
-  (setq-local tab-width 2)
-  (setq-local evil-shift-width 2)
-  (define-key evil-insert-state-map (kbd "TAB") 'tab-to-tab-stop)
-  (global-so-long-mode -1)
-  (add-hook! 'haskell-mode-hook 'interactive-haskell-mode)
-  (add-hook! 'haskell-mode-hook #'tree-sitter-hl-mode)
-  )
+[[https://github.com/jguenther/discover-my-major][jguenther/discover-my-major]]
+
+#+begin_src elisp
+(use-package! discover-my-major)
 #+end_src
 
-*** insert symbol (off)
+** auto-activating-snippets
 
-#+begin_src elisp :tangle no
-(after! haskell
-  (defun mk-haskell-insert-symbol ()
-    "Insert one of the Haskell symbols that are difficult to type."
-    (interactive)
-    (char-menu
-     '("<-" "::"  "->"  "=>"  "="
-       "<*" "<$>" "<*>" "<|>" "*>")))
-    (map! :localleader
-        :map haskell-mode-map
-        (:nvm "m" #'mk-haskell-insert-symbol)
-    ))
-#+end_src
+[[https://github.com/ymarco/auto-activating-snippets][ymarco/auto-activating-snippets]]
 
-*** flycheck keys (off)
-
-#+begin_src elisp :tangle no
-(after! haskell
-  (map! :localleader
-        :map haskell-mode-map
-        "n" #'flycheck-next-error
-        "p" #'flycheck-previous-error))
-#+end_src
-
-*** company (off)
-
-#+begin_src elisp :tangle no
-(map!
-  :after company
-  :map company-active-map
-  "RET" nil
-  "<return>" nil
-  "<tab>" #'company-complete-selection
-  "TAB" #'company-complete-selection)
-(setq tab-always-indent 'complete)
-#+end_src
-
-*** pairs (off)
-#+begin_src elisp :tangle no
-(after! haskell
-      (sp-with-modes '(haskell-mode haskell-interactive-mode)
-        (sp-local-pair "{-" "-}" :actions :rem)
-        (sp-local-pair "{-#" "#-}" :actions :rem)
-        (sp-local-pair "{-@" "@-}" :actions :rem)
-        (sp-local-pair "{-" "-")
-        (sp-local-pair "{-#" "#-")
-        (sp-local-pair "{-@" "@-")))
-#+end_src
-
-*** interactive return (off)
-#+begin_src elisp :tangle no
-(after! haskell
-  (map! (:map haskell-interactive-mode-map
-        :n "<RET>" #'haskell-interactive-mode-return)))
-#+end_src
-
-** haskell-lite (off)
-*** keys (off)
-
-#+begin_src elisp :tangle no
-(after! haskell
-  (use-package! haskell-lite
+#+begin_src elisp
+(use-package! aas
+    :hook (haskell-ng-mode . aas-activate-for-major-mode)
+    :hook (org-mode . aas-activate-for-major-mode)
     :config
-    (map! :localleader
-        :map haskell-mode-map
-        (:prefix ("l" . "lite")
-         :nvm "s" #'haskell-lite-repl-start
-         :nvm "q" #'haskell-lite-repl-quit
-         :nvm "b" #'haskell-lite-repl-buffer
-         :nvm "l" #'haskell-lite-repl-load-file
-         :nvm "o" #'haskell-lite-repl-overlay
-         :nvm "c" #'haskell-comint-clear-buffer
-         :nvm "k" #'haskell-comint-restart)
-    )))
+        (aas-set-snippets 'org-mode
+            ;; expand unconditionally
+            ";-" "- [ ] "
+            ";o-" "ō"
+            ";i-" "ī"
+            ";a-" "ā"
+            ";u-" "ū"
+            ";e-" "ē")
+        (aas-set-snippets 'haskell-ng-mode
+            "On" "O(n)"
+            "O1" "O(1)"
+            "Olog" "O(\\log n)"
+            "Olon" "O(n \\log n)"
+            ;; Use YAS/Tempel snippets with ease!
+            "amin" '(yas "\\argmin_{$1}") ; YASnippet snippet shorthand form
+            ;; bind to functions!
+            ";ig" #'insert-register))
 #+end_src
 
-*** org & haskell-lite (off)
+#+RESULTS:
 
-org-mode is often involved before haskell-mode is used.
+** graphviz
 
-#+begin_src elisp :tangle no
-(after! org
-  (use-package! haskell-lite
-    :config
-    (setq comint-prompt-regexp "ghci> ")
-    (map! :localleader
-        :map org-mode-map
-        (:prefix ("y" . "haskell-lite")
-         :nvm "s" #'haskell-lite-repl-start
-         :nvm "q" #'haskell-lite-repl-quit
-         :nvm "b" #'haskell-lite-repl-buffer
-         :nvm "l" #'haskell-lite-repl-load-file
-         :nvm "o" #'haskell-lite-repl-overlay
-         :nvm "c" #'haskell-lite-clear-buffer
-         :nvm "k" #'haskell-lite-repl-restart)
-    )))
-#+end_src
+[[https://github.com/ppareit/graphviz-dot-mode][ppareit/graphviz-dot-mode]]
 
-*** fd-haskell (off)
-
-#+begin_src elisp :tangle no
-(after! haskell
-  (use-package! fd-haskell
-    :config
-     (setq haskell-shell-buffer-name "haskell")
-     (setq haskell-shell-interpreter '("cabal" "repl"))
-     (setq haskell-shell-interpreter-args '())
-     (setq haskell-pdbtrack-activate nil)
-    )
-  (add-hook! 'haskell-mode-hook 'fd-haskell-mode))
-#+end_src
-
-*** company-ghci (off)
-
-#+begin_src elisp :tangle no
-(use-package company-ghci
-  :after pos-tip
+#+begin_src elisp
+(use-package graphviz-dot-mode
   :config
-  (defun show-hoogle-info-in-popup ()
-    (pos-tip-show (company-ghci/hoogle-info (symbol-at-point))))
-  (defun company-ghci-setup ()
-    (push 'company-ghci company-backends)
-    (define-key evil-normal-state-map (kbd "C-;") (lambda () (interactive) (show-hoogle-info-in-popup))))
-  (add-hook 'haskell-interactive-mode-hook 'company-mode)
-  (add-hook 'haskell-mode-hook 'company-ghci-setup))
+  (setq graphviz-dot-indent-width 4))
+  (setq graphviz-dot-preview-extension "svg")
 #+end_src
 
-** ormolu (off)
-#+begin_src elisp :tangle no
-(use-package ormolu
-  :bind (:map haskell-mode-map
-              ("C-c r" . ormolu-format-buffer)))
-#+end_src
-
-** repl quit (off)
-#+begin_src elisp :tangle no
-(after! haskell
-  (defun haskell-repl-quit (&optional process)
-    "Kill a repl."
-    (interactive)
-    (when (buffer-live-p inferior-haskell-buffer)
-      (with-current-buffer inferior-haskell-buffer
-        (comint-kill-subjob)
-        (kill-buffer))))
-
-  (setq kill-buffer-query-functions
-        (delq 'process-kill-buffer-query-function kill-buffer-query-functions))
-
-  (map! :leader "zhk" #'haskell-repl-quit)
-)
-#+end_src
-
-** eglot experiment (off)
-
-#+begin_src elisp :tangle no
-(after! haskell
-  (use-package eglot)
-  (add-hook! 'haskell-mode-hook 'eglot-ensure)
-  (add-to-list 'eglot-server-programs
-             '(haskell-mode . ("haskell-language-server-wrapper" "--lsp"))))
-#+end_src
-
-** Tidal (off)
-
-~cabal install tidal --lib~ (used to be) the magical incantation.
-
-SuperCompiler start.scd
-
-#+begin_example
-Server.local.options.sampleRate = 44100;
-SuperDirt.start;
-s.reboot
-#+end_example
-
-#+begin_src elisp :tangle no
-(use-package! tidal
-    :init
-    (progn
-      ;; (setq tidal-interpreter "ghci")
-      ;; (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
-      ;; (setq tidal-boot-script-path "~/.emacs.doom/.local/straight/repos/Tidal/BootTidal.hs")
-      ))
-#+end_src
-
-** haskell-snippets (off)
-
-#+begin_src elisp :tangle no
-(use-package! haskell-snippets
-  :after (haskell-mode yasnippet))
-#+end_src
 
 * haskell-ng
 
@@ -1024,6 +833,8 @@ I performed these steps manually, and this is indicative only:
 
 ** haskell-ng-mode
 
+[[https://gitlab.com/magus/haskell-ng-mode][Magnus Therning / haskell-ng-mode · GitLab]]
+
 #+begin_src elisp
 (after! treesit
 (use-package! haskell-ng-mode
@@ -1038,7 +849,7 @@ I performed these steps manually, and this is indicative only:
   (defalias 'haskell-mode #'haskell-ng-mode)
   (defalias 'cabal-mode #'cabal-ng-mode)
   :hook
-  (haskell-ng-mode . lsp-deferred)
+  (haskell-ng-mode . eglot-ensure)
   (haskell-ng-mode . (lambda () (setq-local tab-width 2)))
   :config
   (use-package! ormolu)
@@ -1047,20 +858,13 @@ I performed these steps manually, and this is indicative only:
         :nvm "'" #'haskell-ng-repl-run
         (:prefix ("=" . "format")
          :nvm "=" #'ormolu-format-buffer)
-        (:prefix ("g" . "goto")
-         :nvm "p" #'pop-tag-mark
-         :nvm "d" #'evil-goto-definition
-         :nvm "h" #'lsp-describe-thing-at-point
-         :nvm "r" #'xref-find-definitions
-         :nvm "t" #'lsp-find-type-definition
-         :nvm "T" #'lsp-goto-type-definition)
-        (:prefix ("t" . "toggle")
-         :nvm "l" #'lsp-lens-mode)
+        (:prefix ("c" . "code")
+         :nvm "a" #'eglot-code-actions)
         (:prefix ("," . "backend")
          :nvm "e" #'eglot
          :nvm "l" #'lsp
-         :nvm "r" #'lsp-workspace-restart
-         :nvm "q" #'lsp-workspace-shutdown))
+         :nvm "r" #'eglot-reconnect
+         :nvm "q" #'eglot-shutdown))
   (map! :localleader
         :map cabal-ng-mode-map
         (:prefix ("=" . "format")
@@ -1068,7 +872,7 @@ I performed these steps manually, and this is indicative only:
          :nvm "r" #'cabal-format-region))))
 #+end_src
 
-*** require
+** require
 
 FIXME: Not sure why this is required
 
@@ -1081,6 +885,8 @@ FIXME: Not sure why this is required
 
 ** ob-haskell-ng
 
+[[https://github.com/tonyday567/ob-haskell-ng][tonyday567/ob-haskell-ng]]
+
 #+begin_src elisp
 (use-package! ob-haskell-ng
   :load-path "~/.config/doom/repos/ob-haskell-ng"
@@ -1091,15 +897,15 @@ FIXME: Not sure why this is required
 
 ** combobulate
 
-[[https://github.com/mickeynp/combobulate][GitHub - mickeynp/combobulate: Structured Editing and Navigation in Emacs]]
+[[https://github.com/mickeynp/combobulate][mickeynp/combobulate]]
 
  #+begin_src elisp
  (use-package! combobulate)
  #+end_src
 
-** lsp-haskell
+** lsp-haskell (off)
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! lsp
 (use-package! lsp-haskell
   :config
@@ -1115,7 +921,7 @@ FIXME: Not sure why this is required
         lsp-haskell-plugin-import-lens-code-lens-on nil)))
 #+end_src
 
-** global treesit functionality
+** treesit
 
 #+begin_src elisp
 
@@ -1132,15 +938,37 @@ FIXME: Not sure why this is required
 
 #+end_src
 
+** flymake
 
-* Tidal
+#+begin_src elisp
+(after! haskell-ng-mode
+  (map! :localleader
+        :map haskell-ng-mode-map
+        "n" #'flymake-goto-next-error
+        "p" #'flymake-goto-prev-error
+        "e" #'consult-flymake))
+#+end_src
 
-#+begin_src elisp :tangle no
+** haskell-lite
+
+[[https://github.com/tonyday567/haskell-lite][tonyday567/haskell-lite]]
+
+#+begin_src elisp
+(use-package! haskell-lite
+  :load-path "~/.config/doom/repos/haskell-lite"
+)
+#+end_src
+
+** Tidal
+
+[[https://github.com/tidalcycles/Tidal][tidalcycles/Tidal: Pattern language]]
+
+#+begin_src elisp
 (use-package! tidal
     :init
     (progn
-      ;; (setq tidal-interpreter "ghci")
-      ;; (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
+      (setq tidal-interpreter "ghci")
+      (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
       (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
       ))
 #+end_src

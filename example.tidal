@@ -38,7 +38,6 @@ Soulja
 vocals
 
 
-
 d1
   $ striate 8
   $ loopAt 4
@@ -73,9 +72,6 @@ d2 $ s "bd hh bd [hh hh]"
 
 d1 $ interlace (sound  "bd sn kurt") (every 3 rev $ sound  "bd sn:2")
 
-
--- instrument not found errors for everything below ...
-
 d1
   $ striate 8
   $ s "opDrone*2"
@@ -85,7 +81,7 @@ d1
 
 d1
   $ s "gummiVox:1*2"
-  $ speed (fromString (mconcat (fmap ((" " ++) . show . (*0.1)) [1..8])))
+  $ speed ((mconcat (fmap ((" " ++) . show . (*0.1)) [1..8])))
   # cut "1"
 
 d2
@@ -123,6 +119,7 @@ d6
   # legato "1"
   # gain "1.2"
 
+-- instrument not found: blood
 d7
   $ density 16
   $ striate 16
