@@ -237,7 +237,6 @@ If BIGWORD is non-nil, move by WORDS."
 
 (map!
  (:map 'override
-   :nvm "M-j" #'evil-avy-goto-char-timer
    :nvm "gss" #'evil-avy-goto-char-timer
    :nvm "gs/" #'evil-avy-goto-char-2))
 
@@ -256,6 +255,9 @@ If BIGWORD is non-nil, move by WORDS."
   t)
 
 (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
+
+(map!
+   :leader "w w" #'ace-window)
 
 (map!
    :leader "s f" #'consult-find
@@ -294,8 +296,24 @@ If BIGWORD is non-nil, move by WORDS."
     :n "M-p" 'flycheck-previous-error))
 
 (after! eglot
-    (push  '(haskell-ng-mode . ("haskell-language-server-wrapper" "--lsp")) eglot-server-programs)
-)
+  (setq-default eglot-workspace-configuration
+                '((haskell
+                   (plugin
+                    (stan
+                     (globalOn . :json-false))))))  ;; disable stan
+  (setq eglot-autoshutdown t)  ;; shutdown language server after closing last file
+  (setq eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
+  (push  '(haskell-ng-mode . ("haskell-language-server-wrapper" "--lsp")) eglot-server-programs))
+
+(defun eldoc-documentation-tweak ()
+    (interactive)
+    (setq-local eldoc-echo-area-prefer-doc-buffer t
+                eldoc-echo-area-use-multiline-p nil
+                eldoc-documentation-strategy 'eldoc-documentation-enthusiast)
+    (setq-local eldoc-documentation-functions
+      '(flymake-eldoc-function
+        eglot-signature-eldoc-function
+        eglot-hover-eldoc-function)))
 
 (after! org
   :config
@@ -319,7 +337,7 @@ If BIGWORD is non-nil, move by WORDS."
    org-agenda-tags-column 0
    org-agenda-block-separator ?─)
    (remove-hook 'org-mode-hook 'flyspell-mode)
-   (setq-default org-todo-keywords '((sequence "ToDo(t)" "Next(n)" "Blocked(b)" "|" "Done(d!)")))
+   (setq-default org-todo-keywords '((sequence "ToDo(t)" "Next(n)" "Blocked(b)" "|" "Done(d)")))
 )
 
 (after! org-agenda
@@ -450,11 +468,11 @@ If BIGWORD is non-nil, move by WORDS."
 
 (defun org-yank-into-new-block-haskell ()
   (interactive)
-  (org-yank-into-new-block "src haskell :results output"))
+  (org-yank-into-new-block "src haskell-ng :results output"))
 
 (defun org-new-block-haskell ()
   (interactive)
-  (org-new-block "src haskell :results output"))
+  (org-new-block "src haskell-ng :results output"))
 
 (defun org-yank-into-new-quote ()
   (interactive)
@@ -485,49 +503,6 @@ If BIGWORD is non-nil, move by WORDS."
         :localleader
         (:nvm "lp" #'org-hugo-export-wim-to-md)))
 
-(use-package! beacon
-  :config (beacon-mode 1))
-
-(use-package! iscroll
-  :config (iscroll-mode 1))
-
-(use-package! diminish
-  :config
-  (diminish 'haskell-ng-mode))
-
-(use-package! minions
-  :config
-)
-
-(use-package! discover-my-major)
-
-(use-package! aas
-    :hook (haskell-ng-mode . aas-activate-for-major-mode)
-    :hook (org-mode . aas-activate-for-major-mode)
-    :config
-        (aas-set-snippets 'org-mode
-            ;; expand unconditionally
-            ";-" "- [ ] "
-            ";o-" "ō"
-            ";i-" "ī"
-            ";a-" "ā"
-            ";u-" "ū"
-            ";e-" "ē")
-        (aas-set-snippets 'haskell-ng-mode
-            "On" "O(n)"
-            "O1" "O(1)"
-            "Olog" "O(\\log n)"
-            "Olon" "O(n \\log n)"
-            ;; Use YAS/Tempel snippets with ease!
-            "amin" '(yas "\\argmin_{$1}") ; YASnippet snippet shorthand form
-            ;; bind to functions!
-            ";ig" #'insert-register))
-
-(use-package graphviz-dot-mode
-  :config
-  (setq graphviz-dot-indent-width 4))
-  (setq graphviz-dot-preview-extension "svg")
-
 (after! treesit
 (use-package! haskell-ng-mode
   :diminish
@@ -541,7 +516,8 @@ If BIGWORD is non-nil, move by WORDS."
   (defalias 'haskell-mode #'haskell-ng-mode)
   (defalias 'cabal-mode #'cabal-ng-mode)
   :hook
-  (haskell-ng-mode . eglot-ensure)
+  ;;(haskell-ng-mode . eglot-ensure)
+  (haskell-ng-mode . eldoc-documentation-tweak)
   (haskell-ng-mode . (lambda () (setq-local tab-width 2)))
   :config
   (use-package! ormolu)
@@ -555,6 +531,7 @@ If BIGWORD is non-nil, move by WORDS."
         (:prefix ("," . "backend")
          :nvm "e" #'eglot
          :nvm "l" #'lsp
+         :nvm "d" #'eldoc-documentation-tweak
          :nvm "r" #'eglot-reconnect
          :nvm "q" #'eglot-shutdown))
   (map! :localleader
@@ -572,6 +549,19 @@ If BIGWORD is non-nil, move by WORDS."
 )
 
 (use-package! combobulate)
+
+(use-package! lsp-haskell
+  :config
+  (setq
+        lsp-haskell-brittany-on nil
+        lsp-haskell-floskell-on nil
+        lsp-haskell-fourmolu-on nil
+        lsp-haskell-stylish-haskell-on nil
+        lsp-haskell-retrie-on nil
+        lsp-haskell-plugin-import-lens-code-actions-on nil
+        lsp-haskell-plugin-ghcide-type-lenses-config-mode nil
+        lsp-haskell-plugin-ghcide-type-lenses-global-on nil
+        lsp-haskell-plugin-import-lens-code-lens-on nil))
 
 (after! treesit
 (defun ts-inspect ()
@@ -595,6 +585,28 @@ If BIGWORD is non-nil, move by WORDS."
   :load-path "~/.config/doom/repos/haskell-lite"
 )
 
+(after! org
+(map! :localleader
+      :map org-mode-map
+      (:prefix ("m" . "haskell-ng-repl")
+       :nvm "s" #'haskell-ng-repl-run
+       :nvm "p" #'haskell-lite-prompt
+       :nvm :desc "run n go" "g" (cmd! (haskell-ng-repl-run t))
+       :nvm "q" #'haskell-lite-repl-quit
+       :nvm "r" #'haskell-lite-repl-restart
+       :nvm "b" #'haskell-lite-repl-show)))
+
+(after! org
+(map! :localleader
+      :map haskell-ng-mode-map
+      (:prefix ("m" . "haskell-ng-repl")
+       :nvm "s" #'haskell-ng-repl-run
+       :nvm "p" #'haskell-lite-prompt
+       :nvm :desc "run n go" "g" (cmd! (haskell-ng-repl-run t))
+       :nvm "q" #'haskell-lite-repl-quit
+       :nvm "r" #'haskell-lite-repl-restart
+       :nvm "b" #'haskell-lite-repl-show)))
+
 (use-package! tidal
     :init
     (progn
@@ -602,3 +614,68 @@ If BIGWORD is non-nil, move by WORDS."
       (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
       (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
       ))
+
+(use-package! beacon
+  :config (beacon-mode 1))
+
+(use-package! iscroll
+  :config (iscroll-mode 1))
+
+(use-package! diminish
+  :config
+  (diminish 'haskell-ng-mode))
+
+(use-package! minions
+  :config
+)
+
+(use-package! aas
+    :hook (org-mode . aas-activate-for-major-mode)
+    :config
+        (aas-set-snippets 'org-mode
+            ;; expand unconditionally
+            "-]" "- [ ] "
+            ";ig" #'insert-register
+            ";ro" ":results output"))
+
+(use-package graphviz-dot-mode
+  :config
+  (setq graphviz-dot-indent-width 4))
+  (setq graphviz-dot-preview-extension "svg")
+
+(use-package! uiua-ts-mode
+  :mode "\\.ua\\'")
+
+(use-package! spacious-padding
+  :config
+    (spacious-padding-mode t)
+)
+
+(use-package! vertico-posframe
+  :config
+    (vertico-posframe-mode t)
+)
+
+(use-package dashboard
+  :ensure t
+  :config
+    (setq dashboard-items
+      '((recents  . 5)
+        (agenda . 5)
+        (projects . 5)
+        (bookmarks . 5)))
+    (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
+    ;(setq dashboard-display-icons-p t)
+    ;(setq dashboard-icon-type 'nerd-icons)
+    (setq dashboard-set-navigator t)
+    (setq dashboard-startup-banner nil)
+    (setq dashboard-set-footer nil)
+    (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+    ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
+    (setq dashboard-item-names '(("Recent Files:" . "Recent:")
+                                 ("Agenda for the coming week:" . "Next:")))
+    (setq dashboard-match-agenda-entry "+TODO=\"Next\"|SCHEDULED<\"<now>\"")
+    ;(setq dashboard-set-heading-icons t)
+    ;(setq dashboard-set-file-icons t)
+    (map! :leader "ox" #'dashboard-open)
+    (dashboard-setup-startup-hook))

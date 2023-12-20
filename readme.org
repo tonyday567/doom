@@ -1,5 +1,7 @@
 #+TITLE: Doom Emacs Configuration
 
+* Reference
+
 [[https://github.com/doomemacs/doomemacs/blob/master/docs/getting_started.org][doom - getting started]]
 
 [[https://docs.doomemacs.org/latest/][Documentation - Doom Emacs latest documentation]]
@@ -22,7 +24,6 @@ My personal doom emacs configuration.
 | ~M-SPC~   | cycle-spacing               |
 | ~SPC t m~ | style/max-frame             |
 | ~SPC t d~ | style/default-frame         |
-| ~M-j~     | evil-avy-goto-char-timer    |
 | ~gss~     | evil-avy-goto-char-timer    |
 | ~gs/~     | evil-avy-goto-char-2        |
 | ~C-r~     | isearch-backwards           |
@@ -97,6 +98,7 @@ As per default doom config.el.
 
 [[https://elpa.gnu.org/packages/doc/modus-themes.html#Fringes][Modus themes for GNU Emacs]]
 [[https://protesilaos.com/emacs/modus-themes][Modus Themes (Modus Operandi and Modus Vivendi) | Protesilaos Stavrou]]
+[[https://protesilaos.com/emacs/ef-themes#h:ac76ded0-af9b-4566-aff9-75142ef2d4ef][Ef (εὖ) themes for GNU Emacs | Protesilaos Stavrou]]
 
 #+begin_src elisp
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
@@ -134,7 +136,8 @@ As per default doom config.el.
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 ;; (setq doom-theme 'doom-Iosvkem)
-(setq doom-theme 'modus-operandi)
+(setq doom-theme 'modus-vivendi)
+;; (setq doom-theme 'ef-bio)
 ;; (doom-themes-org-config)
 
 ;; If you use `org' and don't want your org files in the default location below,
@@ -381,7 +384,6 @@ Flipping gss and gs/
 #+begin_src elisp
 (map!
  (:map 'override
-   :nvm "M-j" #'evil-avy-goto-char-timer
    :nvm "gss" #'evil-avy-goto-char-timer
    :nvm "gs/" #'evil-avy-goto-char-2))
 #+end_src
@@ -403,6 +405,13 @@ Flipping gss and gs/
   t)
 
 (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
+#+end_src
+
+*** ace-window
+
+#+begin_src elisp
+(map!
+   :leader "w w" #'ace-window)
 #+end_src
 
 *** consult
@@ -475,13 +484,33 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
     :n "M-p" 'flycheck-previous-error))
 #+end_src
 
-*** eglot
+*** Next eglot
+
+- [ ] check if working now ...
+- [ ] reversal of tweak
 
 #+begin_src elisp
 (after! eglot
-    (push  '(haskell-ng-mode . ("haskell-language-server-wrapper" "--lsp")) eglot-server-programs)
-)
+  (setq-default eglot-workspace-configuration
+                '((haskell
+                   (plugin
+                    (stan
+                     (globalOn . :json-false))))))  ;; disable stan
+  (setq eglot-autoshutdown t)  ;; shutdown language server after closing last file
+  (setq eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
+  (push  '(haskell-ng-mode . ("haskell-language-server-wrapper" "--lsp")) eglot-server-programs))
+
+(defun eldoc-documentation-tweak ()
+    (interactive)
+    (setq-local eldoc-echo-area-prefer-doc-buffer t
+                eldoc-echo-area-use-multiline-p nil
+                eldoc-documentation-strategy 'eldoc-documentation-enthusiast)
+    (setq-local eldoc-documentation-functions
+      '(flymake-eldoc-function
+        eglot-signature-eldoc-function
+        eglot-hover-eldoc-function)))
 #+end_src
+
 #+RESULTS:
 
 * Org
@@ -510,7 +539,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
    org-agenda-tags-column 0
    org-agenda-block-separator ?─)
    (remove-hook 'org-mode-hook 'flyspell-mode)
-   (setq-default org-todo-keywords '((sequence "ToDo(t)" "Next(n)" "Blocked(b)" "|" "Done(d!)")))
+   (setq-default org-todo-keywords '((sequence "ToDo(t)" "Next(n)" "Blocked(b)" "|" "Done(d)")))
 )
  #+end_src
 
@@ -657,11 +686,11 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 (defun org-yank-into-new-block-haskell ()
   (interactive)
-  (org-yank-into-new-block "src haskell :results output"))
+  (org-yank-into-new-block "src haskell-ng :results output"))
 
 (defun org-new-block-haskell ()
   (interactive)
-  (org-new-block "src haskell :results output"))
+  (org-new-block "src haskell-ng :results output"))
 
 (defun org-yank-into-new-quote ()
   (interactive)
@@ -729,93 +758,6 @@ A ToDo in the header makes the post a draft.
         (:nvm "lp" #'org-hugo-export-wim-to-md)))
 #+end_src
 
-* Non-standard packages
-** beacon
-
-[[https://github.com/Malabarba/beacon][Malabarba/beacon]]
-
-#+begin_src elisp
-(use-package! beacon
-  :config (beacon-mode 1))
-#+end_src
-
-** iscroll
-
-[[https://github.com/casouri/iscroll][casouri/iscroll]]
-
-#+begin_src elisp
-(use-package! iscroll
-  :config (iscroll-mode 1))
-#+end_src
-
-** diminish
-
-#+begin_src elisp
-(use-package! diminish
-  :config
-  (diminish 'haskell-ng-mode))
-#+end_src
-
-** minions
-
-[[https://github.com/tarsius/minions][GitHub - tarsius/minions: A minor-mode menu for the mode line]]
-
-#+begin_src elisp
-(use-package! minions
-  :config
-)
-#+end_src
-
-** discover-my-major
-
-[[https://github.com/jguenther/discover-my-major][jguenther/discover-my-major]]
-
-#+begin_src elisp
-(use-package! discover-my-major)
-#+end_src
-
-** auto-activating-snippets
-
-[[https://github.com/ymarco/auto-activating-snippets][ymarco/auto-activating-snippets]]
-
-#+begin_src elisp
-(use-package! aas
-    :hook (haskell-ng-mode . aas-activate-for-major-mode)
-    :hook (org-mode . aas-activate-for-major-mode)
-    :config
-        (aas-set-snippets 'org-mode
-            ;; expand unconditionally
-            ";-" "- [ ] "
-            ";o-" "ō"
-            ";i-" "ī"
-            ";a-" "ā"
-            ";u-" "ū"
-            ";e-" "ē")
-        (aas-set-snippets 'haskell-ng-mode
-            "On" "O(n)"
-            "O1" "O(1)"
-            "Olog" "O(\\log n)"
-            "Olon" "O(n \\log n)"
-            ;; Use YAS/Tempel snippets with ease!
-            "amin" '(yas "\\argmin_{$1}") ; YASnippet snippet shorthand form
-            ;; bind to functions!
-            ";ig" #'insert-register))
-#+end_src
-
-#+RESULTS:
-
-** graphviz
-
-[[https://github.com/ppareit/graphviz-dot-mode][ppareit/graphviz-dot-mode]]
-
-#+begin_src elisp
-(use-package graphviz-dot-mode
-  :config
-  (setq graphviz-dot-indent-width 4))
-  (setq graphviz-dot-preview-extension "svg")
-#+end_src
-
-
 * haskell-ng
 
 [[https://gitlab.com/magus/mes][Magnus Therning / My Emacs Setup · GitLab]]
@@ -849,7 +791,8 @@ I performed these steps manually, and this is indicative only:
   (defalias 'haskell-mode #'haskell-ng-mode)
   (defalias 'cabal-mode #'cabal-ng-mode)
   :hook
-  (haskell-ng-mode . eglot-ensure)
+  ;;(haskell-ng-mode . eglot-ensure)
+  (haskell-ng-mode . eldoc-documentation-tweak)
   (haskell-ng-mode . (lambda () (setq-local tab-width 2)))
   :config
   (use-package! ormolu)
@@ -863,6 +806,7 @@ I performed these steps manually, and this is indicative only:
         (:prefix ("," . "backend")
          :nvm "e" #'eglot
          :nvm "l" #'lsp
+         :nvm "d" #'eldoc-documentation-tweak
          :nvm "r" #'eglot-reconnect
          :nvm "q" #'eglot-shutdown))
   (map! :localleader
@@ -905,8 +849,7 @@ FIXME: Not sure why this is required
 
 ** lsp-haskell (off)
 
-#+begin_src elisp :tangle no
-(after! lsp
+#+begin_src elisp
 (use-package! lsp-haskell
   :config
   (setq
@@ -918,7 +861,7 @@ FIXME: Not sure why this is required
         lsp-haskell-plugin-import-lens-code-actions-on nil
         lsp-haskell-plugin-ghcide-type-lenses-config-mode nil
         lsp-haskell-plugin-ghcide-type-lenses-global-on nil
-        lsp-haskell-plugin-import-lens-code-lens-on nil)))
+        lsp-haskell-plugin-import-lens-code-lens-on nil))
 #+end_src
 
 ** treesit
@@ -959,6 +902,34 @@ FIXME: Not sure why this is required
 )
 #+end_src
 
+*** org-babel bindings
+
+  #+begin_src elisp
+  (after! org
+  (map! :localleader
+        :map org-mode-map
+        (:prefix ("m" . "haskell-ng-repl")
+         :nvm "s" #'haskell-ng-repl-run
+         :nvm "p" #'haskell-lite-prompt
+         :nvm :desc "run n go" "g" (cmd! (haskell-ng-repl-run t))
+         :nvm "q" #'haskell-lite-repl-quit
+         :nvm "r" #'haskell-lite-repl-restart
+         :nvm "b" #'haskell-lite-repl-show)))
+  #+end_src
+*** haskell-ng-repl bindings
+
+  #+begin_src elisp
+  (after! org
+  (map! :localleader
+        :map haskell-ng-mode-map
+        (:prefix ("m" . "haskell-ng-repl")
+         :nvm "s" #'haskell-ng-repl-run
+         :nvm "p" #'haskell-lite-prompt
+         :nvm :desc "run n go" "g" (cmd! (haskell-ng-repl-run t))
+         :nvm "q" #'haskell-lite-repl-quit
+         :nvm "r" #'haskell-lite-repl-restart
+         :nvm "b" #'haskell-lite-repl-show)))
+  #+end_src
 ** Tidal
 
 [[https://github.com/tidalcycles/Tidal][tidalcycles/Tidal: Pattern language]]
@@ -971,4 +942,141 @@ FIXME: Not sure why this is required
       (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
       (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
       ))
+#+end_src
+
+* Non-standard packages
+** beacon
+
+[[https://github.com/Malabarba/beacon][Malabarba/beacon]]
+
+#+begin_src elisp
+(use-package! beacon
+  :config (beacon-mode 1))
+#+end_src
+
+** iscroll
+
+[[https://github.com/casouri/iscroll][casouri/iscroll]]
+
+#+begin_src elisp
+(use-package! iscroll
+  :config (iscroll-mode 1))
+#+end_src
+
+** ToDo diminish
+
+- [ ] diminish not working for haskell-ng-mode
+
+#+begin_src elisp
+(use-package! diminish
+  :config
+  (diminish 'haskell-ng-mode))
+#+end_src
+
+** ToDo minions
+
+[[https://github.com/tarsius/minions][GitHub - tarsius/minions: A minor-mode menu for the mode line]]
+
+#+begin_src elisp
+(use-package! minions
+  :config
+)
+#+end_src
+
+** auto-activating-snippets
+
+[[https://github.com/ymarco/auto-activating-snippets][ymarco/auto-activating-snippets]]
+
+#+begin_src elisp
+(use-package! aas
+    :hook (org-mode . aas-activate-for-major-mode)
+    :config
+        (aas-set-snippets 'org-mode
+            ;; expand unconditionally
+            "-]" "- [ ] "
+            ";ig" #'insert-register
+            ";ro" ":results output"))
+#+end_src
+
+** graphviz
+
+[[https://github.com/ppareit/graphviz-dot-mode][ppareit/graphviz-dot-mode]]
+
+#+begin_src elisp
+(use-package graphviz-dot-mode
+  :config
+  (setq graphviz-dot-indent-width 4))
+  (setq graphviz-dot-preview-extension "svg")
+#+end_src
+
+** ToDo uiua
+
+#+begin_src elisp
+(use-package! uiua-ts-mode
+  :mode "\\.ua\\'")
+#+end_src
+
+** spacious-padding
+
+
+[[https://protesilaos.com/codelog/2023-06-03-emacs-spacious-padding/][Emacs: my new ‘spacious-padding’ package | Protesilaos Stavrou]]
+
+#+begin_src elisp
+(use-package! spacious-padding
+  :config
+    (spacious-padding-mode t)
+)
+#+end_src
+
+** vertico-posframe
+
+[[https://github.com/tumashu/vertico-posframe][tumashu/vertico-posframe]]
+
+#+begin_src elisp
+(use-package! vertico-posframe
+  :config
+    (vertico-posframe-mode t)
+)
+#+end_src
+
+** dashboard
+
+[[https://github.com/emacs-dashboard/emacs-dashboard][emacs-dashboard/emacs-dashboard]]
+
+[[https://orgmode.org/manual/Matching-tags-and-properties.html][Matching tags and properties (The Org Manual)]]
+
+#+begin_src elisp
+(use-package dashboard
+  :ensure t
+  :config
+    (setq dashboard-items
+      '((recents  . 5)
+        (agenda . 5)
+        (projects . 5)
+        (bookmarks . 5)))
+    (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
+    ;(setq dashboard-display-icons-p t)
+    ;(setq dashboard-icon-type 'nerd-icons)
+    (setq dashboard-set-navigator t)
+    (setq dashboard-startup-banner nil)
+    (setq dashboard-set-footer nil)
+    (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+    ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
+    (setq dashboard-item-names '(("Recent Files:" . "Recent:")
+                                 ("Agenda for the coming week:" . "Next:")))
+    (setq dashboard-match-agenda-entry "+TODO=\"Next\"|SCHEDULED<\"<now>\"")
+    ;(setq dashboard-set-heading-icons t)
+    ;(setq dashboard-set-file-icons t)
+    (map! :leader "ox" #'dashboard-open)
+    (dashboard-setup-startup-hook))
+#+end_src
+
+** ToDo ef-themes
+
+#+begin_src elisp
+(use-package! ef-themes
+  :config
+  (setq ef-themes-to-toggle '(ef-bio ef-dark))
+  (mapc #'disable-theme custom-enabled-themes)
+  (ef-themes-select 'ef-bio))
 #+end_src

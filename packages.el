@@ -52,22 +52,25 @@
 (package! org-random-todo)
 (package! beacon)
 (package! iscroll)
-
 (package! lsp-haskell
   :recipe (:host github
            :repo "magthe/lsp-haskell"
            :branch "master"))
-
 (package! combobulate)
 (package! ormolu)
 (package! minions)
 (package! diminish)
 (package! tidal
   :recipe (:host github :repo "tonyday567/Tidal" :branch "haskell-ng"))
-
 (package! discover-my-major)
 (package! aas)
 (package! graphviz-dot-mode)
+(package! uiua-ts-mode
+  :recipe (:host github :repo "crmsnbleyd/uiua-ts-mode"))
+(package! dashboard)
+(package! spacious-padding)
+(package! vertico-posframe)
+(package! ef-themes)
 
 ;; (package! haskell-ng-mode
 ;;   :recipe (:type git
