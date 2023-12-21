@@ -33,7 +33,8 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 ;; (setq doom-theme 'doom-Iosvkem)
-(setq doom-theme 'modus-operandi)
+(setq doom-theme 'modus-vivendi)
+;; (setq doom-theme 'ef-bio)
 ;; (doom-themes-org-config)
 
 ;; If you use `org' and don't want your org files in the default location below,
@@ -679,3 +680,9 @@ If BIGWORD is non-nil, move by WORDS."
     ;(setq dashboard-set-file-icons t)
     (map! :leader "ox" #'dashboard-open)
     (dashboard-setup-startup-hook))
+
+(use-package! ef-themes
+  :config
+  (setq ef-themes-to-toggle '(ef-bio ef-dark))
+  (mapc #'disable-theme custom-enabled-themes)
+  (ef-themes-select 'ef-bio))
