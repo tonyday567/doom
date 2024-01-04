@@ -17,24 +17,24 @@
 ;; + `doom-font'
 ;; + `doom-variable-pitch-font'
 ;; + `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
+;;    presentations or streaming.
 ;;
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
 ;;(setq doom-font (font-spec :family "Iosevka ss02" :size 14 :weight 'light)
 ;;      doom-variable-pitch-font (font-spec :family "Iosevka etoile" :size 14))
-(setq doom-font (font-spec :family "Victor Mono")
-      doom-variable-pitch-font (font-spec :family "Iosevka Aile"))
-
-;;(setq doom-font (font-spec :family "Iosevka")
+;;(setq doom-font (font-spec :family "Victor Mono")
 ;;      doom-variable-pitch-font (font-spec :family "Iosevka Aile"))
+
+(setq doom-font (font-spec :family "Victor Mono"))
+(setq doom-variable-pitch-font (font-spec :family "Iosevka Aile"))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 ;; (setq doom-theme 'doom-Iosvkem)
-(setq doom-theme 'modus-vivendi)
-;; (setq doom-theme 'ef-bio)
+;; (setq doom-theme 'modus-vivendi)
+(setq doom-theme 'ef-bio)
 ;; (doom-themes-org-config)
 
 ;; If you use `org' and don't want your org files in the default location below,
@@ -316,6 +316,13 @@ If BIGWORD is non-nil, move by WORDS."
         eglot-signature-eldoc-function
         eglot-hover-eldoc-function)))
 
+(defun eldoc-documentation-lsp-tweak ()
+    (interactive)
+    (setq-local eldoc-echo-area-prefer-doc-buffer t
+                eldoc-echo-area-use-multiline-p nil
+                eldoc-documentation-strategy 'eldoc-documentation-enthusiast)
+    (setq-local eldoc-documentation-functions nil))
+
 (after! org
   :config
   (setq
@@ -506,7 +513,7 @@ If BIGWORD is non-nil, move by WORDS."
 
 (after! treesit
 (use-package! haskell-ng-mode
-  :diminish
+  :diminish haskell-ng-mode
   :load-path "~/.config/doom/repos/haskell-ng-mode"
   :init
   (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
@@ -518,7 +525,7 @@ If BIGWORD is non-nil, move by WORDS."
   (defalias 'cabal-mode #'cabal-ng-mode)
   :hook
   ;;(haskell-ng-mode . eglot-ensure)
-  (haskell-ng-mode . eldoc-documentation-tweak)
+  ;;(haskell-ng-mode . eldoc-documentation-tweak)
   (haskell-ng-mode . (lambda () (setq-local tab-width 2)))
   :config
   (use-package! ormolu)
@@ -533,6 +540,7 @@ If BIGWORD is non-nil, move by WORDS."
          :nvm "e" #'eglot
          :nvm "l" #'lsp
          :nvm "d" #'eldoc-documentation-tweak
+         :nvm "D" #'eldoc-documentation-lsp-tweak
          :nvm "r" #'eglot-reconnect
          :nvm "q" #'eglot-shutdown))
   (map! :localleader
@@ -554,15 +562,13 @@ If BIGWORD is non-nil, move by WORDS."
 (use-package! lsp-haskell
   :config
   (setq
-        lsp-haskell-brittany-on nil
-        lsp-haskell-floskell-on nil
-        lsp-haskell-fourmolu-on nil
-        lsp-haskell-stylish-haskell-on nil
-        lsp-haskell-retrie-on nil
-        lsp-haskell-plugin-import-lens-code-actions-on nil
-        lsp-haskell-plugin-ghcide-type-lenses-config-mode nil
-        lsp-haskell-plugin-ghcide-type-lenses-global-on nil
-        lsp-haskell-plugin-import-lens-code-lens-on nil))
+        lsp-haskell-plugin-stan-global-on nil
+        lsp-haskell-plugin-import-lens-code-actions-on t
+        lsp-haskell-plugin-ghcide-type-lenses-config-mode t
+        lsp-haskell-plugin-ghcide-type-lenses-global-on t
+        lsp-haskell-plugin-import-lens-code-lens-on nil
+        lsp-haskell-plugin-hlint-diagnostics-on t
+        ))
 
 (after! treesit
 (defun ts-inspect ()
@@ -592,7 +598,7 @@ If BIGWORD is non-nil, move by WORDS."
       (:prefix ("m" . "haskell-ng-repl")
        :nvm "s" #'haskell-ng-repl-run
        :nvm "p" #'haskell-lite-prompt
-       :nvm :desc "run n go" "g" (cmd! (haskell-ng-repl-run t))
+       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
        :nvm "q" #'haskell-lite-repl-quit
        :nvm "r" #'haskell-lite-repl-restart
        :nvm "b" #'haskell-lite-repl-show)))
@@ -603,7 +609,7 @@ If BIGWORD is non-nil, move by WORDS."
       (:prefix ("m" . "haskell-ng-repl")
        :nvm "s" #'haskell-ng-repl-run
        :nvm "p" #'haskell-lite-prompt
-       :nvm :desc "run n go" "g" (cmd! (haskell-ng-repl-run t))
+       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
        :nvm "q" #'haskell-lite-repl-quit
        :nvm "r" #'haskell-lite-repl-restart
        :nvm "b" #'haskell-lite-repl-show)))
@@ -615,6 +621,11 @@ If BIGWORD is non-nil, move by WORDS."
       (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
       (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
       ))
+
+(use-package! company
+  :config
+  (setq +company-backend-alist (assq-delete-all 'prog-mode +company-backend-alist))
+  (add-to-list '+company-backend-alist '(prog-mode (:separate company-capf))))
 
 (use-package! beacon
   :config (beacon-mode 1))
@@ -655,6 +666,7 @@ If BIGWORD is non-nil, move by WORDS."
 (use-package! vertico-posframe
   :config
     (vertico-posframe-mode t)
+    (map! :leader "tp" #'vertico-posframe-cleanup)
 )
 
 (use-package dashboard
@@ -662,7 +674,7 @@ If BIGWORD is non-nil, move by WORDS."
   :config
     (setq dashboard-items
       '((recents  . 5)
-        (agenda . 5)
+        (agenda . 10)
         (projects . 5)
         (bookmarks . 5)))
     (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
@@ -672,6 +684,7 @@ If BIGWORD is non-nil, move by WORDS."
     (setq dashboard-startup-banner nil)
     (setq dashboard-set-footer nil)
     (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+    (setq dashboard-agenda-prefix-format "%-12s%-12:c")
     ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
     (setq dashboard-item-names '(("Recent Files:" . "Recent:")
                                  ("Agenda for the coming week:" . "Next:")))
