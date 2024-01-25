@@ -1,12 +1,14 @@
 #+TITLE: Doom Emacs Configuration
 
+#+PROPERTY: header-args    :tangle config.el
+
+My personal doom emacs configuration.
+
 * Reference
 
 [[https://github.com/doomemacs/doomemacs/blob/master/docs/getting_started.org][doom - getting started]]
 
 [[https://docs.doomemacs.org/latest/][Documentation - Doom Emacs latest documentation]]
-
-My personal doom emacs configuration.
 
 * Non-standard binds
 ** global map
@@ -42,16 +44,20 @@ My personal doom emacs configuration.
 
 ** haskell-ng map
 
-| SPC m n   | flymake-goto-next-error |
-| SPC m p   | flymake-goto-prev-error |
-| SPC m e   | consult-flymake         |
+| M-n       | flycheck-next-error     |
+| M-p       | flycheck-prev-error     |
+| SPC m h   | hoogle-name             |
+| SPC m p   | hackage-package         |
 | SPC m '   | haskell-ng-repl-run     |
 | SPC m = = | ormolu-format-buffer    |
-| SPC m c a | eglot-code-actions      |
-| SPC m , e | eglot                   |
-| SPC m , l | lsp                     |
-| SPC m , r | eglot-reconnect         |
-| SPC m , q | eglot-shutdown          |
+| SPC m e e | eglot                   |
+| SPC m l l | lsp                     |
+| SPC m l r | lsp-restart             |
+| SPC m l f | consult-flycheck        |
+| SPC m l i | toggle-import-lens-code |
+| SPC m l s | lsp-ui-sideline-mode    |
+| SPC m l m | lsp-toggle-mouse-docs   |
+| SPC m l q | lsp-workspace-shutdown  |
 | SPC m = = | cabal-format-buffer     |
 | SPC m = r | cabal-format-region     |
 |           |                         |
@@ -92,7 +98,7 @@ A useful technique is to do an advanced github search of these repos, together w
 
 [[https://gitlab.com/magus/mes][magus]]
 
-* Front Matter
+* Default
 
 As per default doom config.el.
 
@@ -484,10 +490,24 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
     :n "M-p" 'flycheck-previous-error))
 #+end_src
 
-*** Next eglot
+*** ToDo company
 
-- [ ] check if working now ...
-- [ ] reversal of tweak
+#+begin_src elisp
+(after! company
+  :config
+  (setq +company-backend-alist (assq-delete-all 'prog-mode +company-backend-alist))
+  (add-to-list '+company-backend-alist '(prog-mode (:separate company-capf))))
+#+end_src
+
+#+RESULTS:
+
+#+begin_src elisp :tangle no
+(after! haskell-ng-mode
+    (set-company-backend! 'haskell-ng-mode nil)
+    (set-company-backend! 'haskell-ng-mode '(company-capf)))
+#+end_src
+
+*** eglot
 
 #+begin_src elisp
 (after! eglot
@@ -518,8 +538,6 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
     (setq-local eldoc-documentation-functions nil))
 
 #+end_src
-
-#+RESULTS:
 
 * Org
 ** general tweaks
@@ -808,22 +826,54 @@ I performed these steps manually, and this is indicative only:
   (map! :localleader
         :map haskell-ng-mode-map
         :nvm "'" #'haskell-ng-repl-run
+        :nvm "h" #'hoogle-name
+        :nvm "p" #'hackage-package
         (:prefix ("=" . "format")
          :nvm "=" #'ormolu-format-buffer)
-        (:prefix ("c" . "code")
-         :nvm "a" #'eglot-code-actions)
-        (:prefix ("," . "backend")
+        (:prefix ("e" . "eglot")
          :nvm "e" #'eglot
-         :nvm "l" #'lsp
          :nvm "d" #'eldoc-documentation-tweak
          :nvm "D" #'eldoc-documentation-lsp-tweak
          :nvm "r" #'eglot-reconnect
-         :nvm "q" #'eglot-shutdown))
+         :nvm "q" #'eglot-shutdown)
+        (:prefix ("t" . "treemacs")
+         :nvm "c" #'lsp-treemacs-call-hierarchy
+         :nvm "e" #'lsp-treemacs-errors-list
+         :nvm "r" #'lsp-treemacs-references)
+        (:prefix ("l" . "lsp")
+         :nvm "m" #'lsp-toggle-mouse-docs
+         :nvm "l" #'lsp
+         :nvm "f" #'consult-flycheck
+         :nvm "F" #'consult-lsp-diagnostics
+         :nvm "i" #'toggle-import-lens-code
+         :nvm "s" #'lsp-ui-sideline-mode
+         :nvm "r" #'lsp-workspace-restart
+         :nvm "q" #'lsp-workspace-shutdown))
+
   (map! :localleader
         :map cabal-ng-mode-map
         (:prefix ("=" . "format")
          :nvm "=" #'cabal-format-buffer
-         :nvm "r" #'cabal-format-region))))
+         :nvm "r" #'cabal-format-region)
+        :nvm "p" #'hackage-package
+        :nvm "h" #'hoogle-name
+         )))
+#+end_src
+
+#+begin_src elisp
+(defun hackage-package (package)
+  "Open current PACKAGE at hackage."
+  (interactive (list
+                (read-string (format "Lookup package (%s): " (thing-at-point 'symbol))
+                             nil nil (thing-at-point 'word))))
+  (browse-url (format "https://hackage.haskell.org/package/%s" (url-hexify-string package))))
+
+(defun hoogle-name (name)
+  "Lookup NAME at hoogle."
+  (interactive (list
+                (read-string (format "Hoogle lookup: %s" (thing-at-point 'symbol))
+                             nil nil (thing-at-point 'symbol))))
+  (browse-url (format "https://hoogle.haskell.org/?hoogle=%s" (url-hexify-string name))))
 #+end_src
 
 ** require
@@ -841,7 +891,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tonyday567/ob-haskell-ng][tonyday567/ob-haskell-ng]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! ob-haskell-ng
   :load-path "~/.config/doom/repos/ob-haskell-ng"
   :config
@@ -857,7 +907,28 @@ FIXME: Not sure why this is required
  (use-package! combobulate)
  #+end_src
 
-** lsp-haskell
+** lsp
+
+#+begin_src elisp
+(after! lsp-mode
+  (setq lsp-auto-execute-action nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (defun lsp-toggle-mouse-docs ()
+   (interactive)
+   (if lsp-ui-doc-show-with-mouse
+     (setq lsp-ui-doc-show-with-mouse nil)
+     (setq lsp-ui-doc-show-with-mouse t)
+   )
+  )
+)
+#+end_src
+
+#+begin_src elisp
+(after! lsp-ui
+  (message "after lsp-ui triggered")
+  (setq lsp-ui-show-with-mouse t)
+)
+#+end_src
 
 #+begin_src elisp
 (use-package! lsp-haskell
@@ -866,11 +937,32 @@ FIXME: Not sure why this is required
         lsp-haskell-plugin-stan-global-on nil
         lsp-haskell-plugin-import-lens-code-actions-on t
         lsp-haskell-plugin-ghcide-type-lenses-config-mode t
+        lsp-haskell-plugin-eval-global-on nil
         lsp-haskell-plugin-ghcide-type-lenses-global-on t
-        lsp-haskell-plugin-import-lens-code-lens-on nil
+        lsp-haskell-plugin-import-lens-code-lens-on t
         lsp-haskell-plugin-hlint-diagnostics-on t
-        ))
+        lsp-haskell-plugin-retrie-global-on nil
+        lsp-haskell-plugin-alternate-number-format-global-on nil
+        )
+  (defun toggle-import-lens-code ()
+   (interactive)
+   (if lsp-haskell-plugin-import-lens-code-lens-on
+     (setq lsp-haskell-plugin-import-lens-code-lens-on nil)
+     (setq lsp-haskell-plugin-import-lens-code-lens-on t)
+   )
+   (lsp-workspace-restart (lsp--read-workspace))
+  )
+ )
 #+end_src
+
+#+begin_src elisp
+(use-package! lsp-treemacs
+  :config
+  (lsp-treemacs-sync-mode 1)
+  (setq lsp-treemacs-errors-position-params '((side . left)))
+)
+#+end_src
+
 
 ** treesit
 
@@ -952,21 +1044,6 @@ FIXME: Not sure why this is required
       ))
 #+end_src
 
-** company-yasnippet
-
-#+begin_src elisp
-(use-package! company
-  :config
-  (setq +company-backend-alist (assq-delete-all 'prog-mode +company-backend-alist))
-  (add-to-list '+company-backend-alist '(prog-mode (:separate company-capf))))
-#+end_src
-
-#+begin_src elisp :tangle no
-(after! haskell-ng-mode
-    (set-company-backend! 'haskell-ng-mode nil)
-    (set-company-backend! 'haskell-ng-mode '(company-capf)))
-#+end_src
-
 * Non-standard packages
 ** beacon
 
@@ -986,24 +1063,10 @@ FIXME: Not sure why this is required
   :config (iscroll-mode 1))
 #+end_src
 
-** ToDo diminish
-
-- [ ] diminish not working for haskell-ng-mode
+** diminish
 
 #+begin_src elisp
-(use-package! diminish
-  :config
-  (diminish 'haskell-ng-mode))
-#+end_src
-
-** ToDo minions
-
-[[https://github.com/tarsius/minions][GitHub - tarsius/minions: A minor-mode menu for the mode line]]
-
-#+begin_src elisp
-(use-package! minions
-  :config
-)
+(use-package! diminish)
 #+end_src
 
 ** auto-activating-snippets
@@ -1032,7 +1095,7 @@ FIXME: Not sure why this is required
   (setq graphviz-dot-preview-extension "svg")
 #+end_src
 
-** ToDo uiua
+** uiua
 
 #+begin_src elisp
 (use-package! uiua-ts-mode
@@ -1070,8 +1133,7 @@ FIXME: Not sure why this is required
 [[https://orgmode.org/manual/Matching-tags-and-properties.html][Matching tags and properties (The Org Manual)]]
 
 #+begin_src elisp
-(use-package dashboard
-  :ensure t
+(use-package! dashboard
   :config
     (setq dashboard-items
       '((recents  . 5)
@@ -1084,8 +1146,9 @@ FIXME: Not sure why this is required
     (setq dashboard-set-navigator t)
     (setq dashboard-startup-banner nil)
     (setq dashboard-set-footer nil)
+    (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
     (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
-    (setq dashboard-agenda-prefix-format "%-12s%-12:c")
+    (setq dashboard-agenda-prefix-format "%s%-12:c")
     ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
     (setq dashboard-item-names '(("Recent Files:" . "Recent:")
                                  ("Agenda for the coming week:" . "Next:")))
@@ -1096,7 +1159,7 @@ FIXME: Not sure why this is required
     (dashboard-setup-startup-hook))
 #+end_src
 
-** ToDo ef-themes
+** ef-themes
 
 #+begin_src elisp
 (use-package! ef-themes
@@ -1105,3 +1168,4 @@ FIXME: Not sure why this is required
   (mapc #'disable-theme custom-enabled-themes)
   (ef-themes-select 'ef-bio))
 #+end_src
+

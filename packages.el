@@ -71,6 +71,7 @@
 (package! spacious-padding)
 (package! vertico-posframe)
 (package! ef-themes)
+(package! lsp-treemacs)
 
 ;; (package! haskell-ng-mode
 ;;   :recipe (:type git

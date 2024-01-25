@@ -279,13 +279,13 @@ If BIGWORD is non-nil, move by WORDS."
         completion-category-defaults nil
         completion-category-overrides '((file (styles . (partial-completion))))))
 
-(setq erc-autojoin-channels-alist '(("libera.chat" "#haskell" "#emacs")))
-(setq erc-hide-list '("JOIN" "PART" "QUIT"))
-(setq erc-hide-timestamps t)
-(setq erc-autojoin-timing 'ident)
-;; (erc-prompt-for-nickserv-password nil)
-(setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
-                              "324" "329" "332" "333" "353" "477"))
+  (setq erc-autojoin-channels-alist '(("libera.chat" "#haskell" "#emacs")))
+  (setq erc-hide-list '("JOIN" "PART" "QUIT"))
+  (setq erc-hide-timestamps t)
+  (setq erc-autojoin-timing 'ident)
+  ;; (erc-prompt-for-nickserv-password nil)
+  (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
+                                "324" "329" "332" "333" "353" "477"))
 
 (after! latex
  (setq org-latex-packages-alist '(("" "tikz-cd" t) ("" "tikz" t)))
@@ -295,6 +295,11 @@ If BIGWORD is non-nil, move by WORDS."
   (map!
     :n "M-n" 'flycheck-next-error
     :n "M-p" 'flycheck-previous-error))
+
+(after! company
+  :config
+  (setq +company-backend-alist (assq-delete-all 'prog-mode +company-backend-alist))
+  (add-to-list '+company-backend-alist '(prog-mode (:separate company-capf))))
 
 (after! eglot
   (setq-default eglot-workspace-configuration
@@ -532,32 +537,73 @@ If BIGWORD is non-nil, move by WORDS."
   (map! :localleader
         :map haskell-ng-mode-map
         :nvm "'" #'haskell-ng-repl-run
+        :nvm "h" #'hoogle-name
+        :nvm "p" #'hackage-package
         (:prefix ("=" . "format")
          :nvm "=" #'ormolu-format-buffer)
-        (:prefix ("c" . "code")
-         :nvm "a" #'eglot-code-actions)
-        (:prefix ("," . "backend")
+        (:prefix ("e" . "eglot")
          :nvm "e" #'eglot
-         :nvm "l" #'lsp
          :nvm "d" #'eldoc-documentation-tweak
          :nvm "D" #'eldoc-documentation-lsp-tweak
          :nvm "r" #'eglot-reconnect
-         :nvm "q" #'eglot-shutdown))
+         :nvm "q" #'eglot-shutdown)
+        (:prefix ("t" . "treemacs")
+         :nvm "c" #'lsp-treemacs-call-hierarchy
+         :nvm "e" #'lsp-treemacs-errors-list
+         :nvm "r" #'lsp-treemacs-references)
+        (:prefix ("l" . "lsp")
+         :nvm "m" #'lsp-toggle-mouse-docs
+         :nvm "l" #'lsp
+         :nvm "f" #'consult-flycheck
+         :nvm "F" #'consult-lsp-diagnostics
+         :nvm "i" #'toggle-import-lens-code
+         :nvm "s" #'lsp-ui-sideline-mode
+         :nvm "r" #'lsp-workspace-restart
+         :nvm "q" #'lsp-workspace-shutdown))
+
   (map! :localleader
         :map cabal-ng-mode-map
         (:prefix ("=" . "format")
          :nvm "=" #'cabal-format-buffer
-         :nvm "r" #'cabal-format-region))))
+         :nvm "r" #'cabal-format-region)
+        :nvm "p" #'hackage-package
+        :nvm "h" #'hoogle-name
+         )))
+
+(defun hackage-package (package)
+  "Open current PACKAGE at hackage."
+  (interactive (list
+                (read-string (format "Lookup package (%s): " (thing-at-point 'symbol))
+                             nil nil (thing-at-point 'word))))
+  (browse-url (format "https://hackage.haskell.org/package/%s" (url-hexify-string package))))
+
+(defun hoogle-name (name)
+  "Lookup NAME at hoogle."
+  (interactive (list
+                (read-string (format "Hoogle lookup: %s" (thing-at-point 'symbol))
+                             nil nil (thing-at-point 'symbol))))
+  (browse-url (format "https://hoogle.haskell.org/?hoogle=%s" (url-hexify-string name))))
 
 (require 'haskell-ng-mode)
 
-(use-package! ob-haskell-ng
-  :load-path "~/.config/doom/repos/ob-haskell-ng"
-  :config
-  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
+ (use-package! combobulate)
+
+(after! lsp-mode
+  (setq lsp-auto-execute-action nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (defun lsp-toggle-mouse-docs ()
+   (interactive)
+   (if lsp-ui-doc-show-with-mouse
+     (setq lsp-ui-doc-show-with-mouse nil)
+     (setq lsp-ui-doc-show-with-mouse t)
+   )
+  )
 )
 
-(use-package! combobulate)
+(after! lsp-ui
+  (message "after lsp-ui triggered")
+  (setq lsp-ui-show-with-mouse t)
+)
 
 (use-package! lsp-haskell
   :config
@@ -565,10 +611,28 @@ If BIGWORD is non-nil, move by WORDS."
         lsp-haskell-plugin-stan-global-on nil
         lsp-haskell-plugin-import-lens-code-actions-on t
         lsp-haskell-plugin-ghcide-type-lenses-config-mode t
+        lsp-haskell-plugin-eval-global-on nil
         lsp-haskell-plugin-ghcide-type-lenses-global-on t
-        lsp-haskell-plugin-import-lens-code-lens-on nil
+        lsp-haskell-plugin-import-lens-code-lens-on t
         lsp-haskell-plugin-hlint-diagnostics-on t
-        ))
+        lsp-haskell-plugin-retrie-global-on nil
+        lsp-haskell-plugin-alternate-number-format-global-on nil
+        )
+  (defun toggle-import-lens-code ()
+   (interactive)
+   (if lsp-haskell-plugin-import-lens-code-lens-on
+     (setq lsp-haskell-plugin-import-lens-code-lens-on nil)
+     (setq lsp-haskell-plugin-import-lens-code-lens-on t)
+   )
+   (lsp-workspace-restart (lsp--read-workspace))
+  )
+ )
+
+(use-package! lsp-treemacs
+  :config
+  (lsp-treemacs-sync-mode 1)
+  (setq lsp-treemacs-errors-position-params '((side . left)))
+)
 
 (after! treesit
 (defun ts-inspect ()
@@ -592,27 +656,27 @@ If BIGWORD is non-nil, move by WORDS."
   :load-path "~/.config/doom/repos/haskell-lite"
 )
 
-(after! org
-(map! :localleader
-      :map org-mode-map
-      (:prefix ("m" . "haskell-ng-repl")
-       :nvm "s" #'haskell-ng-repl-run
-       :nvm "p" #'haskell-lite-prompt
-       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
-       :nvm "q" #'haskell-lite-repl-quit
-       :nvm "r" #'haskell-lite-repl-restart
-       :nvm "b" #'haskell-lite-repl-show)))
+  (after! org
+  (map! :localleader
+        :map org-mode-map
+        (:prefix ("m" . "haskell-ng-repl")
+         :nvm "s" #'haskell-ng-repl-run
+         :nvm "p" #'haskell-lite-prompt
+         :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
+         :nvm "q" #'haskell-lite-repl-quit
+         :nvm "r" #'haskell-lite-repl-restart
+         :nvm "b" #'haskell-lite-repl-show)))
 
-(after! org
-(map! :localleader
-      :map haskell-ng-mode-map
-      (:prefix ("m" . "haskell-ng-repl")
-       :nvm "s" #'haskell-ng-repl-run
-       :nvm "p" #'haskell-lite-prompt
-       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
-       :nvm "q" #'haskell-lite-repl-quit
-       :nvm "r" #'haskell-lite-repl-restart
-       :nvm "b" #'haskell-lite-repl-show)))
+  (after! org
+  (map! :localleader
+        :map haskell-ng-mode-map
+        (:prefix ("m" . "haskell-ng-repl")
+         :nvm "s" #'haskell-ng-repl-run
+         :nvm "p" #'haskell-lite-prompt
+         :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
+         :nvm "q" #'haskell-lite-repl-quit
+         :nvm "r" #'haskell-lite-repl-restart
+         :nvm "b" #'haskell-lite-repl-show)))
 
 (use-package! tidal
     :init
@@ -622,24 +686,13 @@ If BIGWORD is non-nil, move by WORDS."
       (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
       ))
 
-(use-package! company
-  :config
-  (setq +company-backend-alist (assq-delete-all 'prog-mode +company-backend-alist))
-  (add-to-list '+company-backend-alist '(prog-mode (:separate company-capf))))
-
 (use-package! beacon
   :config (beacon-mode 1))
 
 (use-package! iscroll
   :config (iscroll-mode 1))
 
-(use-package! diminish
-  :config
-  (diminish 'haskell-ng-mode))
-
-(use-package! minions
-  :config
-)
+(use-package! diminish)
 
 (use-package! aas
     :hook (org-mode . aas-activate-for-major-mode)
@@ -669,8 +722,7 @@ If BIGWORD is non-nil, move by WORDS."
     (map! :leader "tp" #'vertico-posframe-cleanup)
 )
 
-(use-package dashboard
-  :ensure t
+(use-package! dashboard
   :config
     (setq dashboard-items
       '((recents  . 5)
@@ -683,8 +735,9 @@ If BIGWORD is non-nil, move by WORDS."
     (setq dashboard-set-navigator t)
     (setq dashboard-startup-banner nil)
     (setq dashboard-set-footer nil)
+    (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
     (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
-    (setq dashboard-agenda-prefix-format "%-12s%-12:c")
+    (setq dashboard-agenda-prefix-format "%s%-12:c")
     ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
     (setq dashboard-item-names '(("Recent Files:" . "Recent:")
                                  ("Agenda for the coming week:" . "Next:")))
