@@ -299,7 +299,19 @@ If BIGWORD is non-nil, move by WORDS."
 (after! company
   :config
   (setq +company-backend-alist (assq-delete-all 'prog-mode +company-backend-alist))
-  (add-to-list '+company-backend-alist '(prog-mode (:separate company-capf))))
+  (add-to-list '+company-backend-alist '(prog-mode (company-dabbrev-code :separate company-capf)))
+  (map! :leader "ti" #'toggle-company-ispell))
+
+(defun toggle-company-ispell ()
+  "Toggle company ispell backend."
+  (interactive)
+  (cond
+   ((memq 'company-ispell company-backends)
+    (setq company-backends (delete 'company-ispell company-backends))
+    (message "company-ispell disabled"))
+   (t
+    (push 'company-ispell company-backends)
+    (message "company-ispell enabled!"))))
 
 (after! eglot
   (setq-default eglot-workspace-configuration
@@ -532,6 +544,7 @@ If BIGWORD is non-nil, move by WORDS."
   ;;(haskell-ng-mode . eglot-ensure)
   ;;(haskell-ng-mode . eldoc-documentation-tweak)
   (haskell-ng-mode . (lambda () (setq-local tab-width 2)))
+  (haskell-ng-mode . (lambda () (setq mode-name "λ")))
   :config
   (use-package! ormolu)
   (map! :localleader
@@ -584,7 +597,18 @@ If BIGWORD is non-nil, move by WORDS."
                              nil nil (thing-at-point 'symbol))))
   (browse-url (format "https://hoogle.haskell.org/?hoogle=%s" (url-hexify-string name))))
 
+(after! dumb-jump
+  (add-to-list '+lookup-provider-url-alist '("hoogle"  "https://hoogle.haskell.org/?hoogle=%s"))
+  (add-to-list '+lookup-provider-url-alist '("hackage"  "https://hackage.haskell.org/package/%s"))
+)
+
 (require 'haskell-ng-mode)
+
+(use-package! ob-haskell-ng
+  :load-path "~/.config/doom/repos/ob-haskell-ng"
+  :config
+  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
+)
 
  (use-package! combobulate)
 

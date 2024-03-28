@@ -490,13 +490,14 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
     :n "M-p" 'flycheck-previous-error))
 #+end_src
 
-*** ToDo company
+*** company
 
 #+begin_src elisp
 (after! company
   :config
   (setq +company-backend-alist (assq-delete-all 'prog-mode +company-backend-alist))
-  (add-to-list '+company-backend-alist '(prog-mode (:separate company-capf))))
+  (add-to-list '+company-backend-alist '(prog-mode (company-dabbrev-code :separate company-capf)))
+  (map! :leader "ti" #'toggle-company-ispell))
 #+end_src
 
 #+RESULTS:
@@ -505,6 +506,19 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 (after! haskell-ng-mode
     (set-company-backend! 'haskell-ng-mode nil)
     (set-company-backend! 'haskell-ng-mode '(company-capf)))
+#+end_src
+
+#+begin_src elisp
+(defun toggle-company-ispell ()
+  "Toggle company ispell backend."
+  (interactive)
+  (cond
+   ((memq 'company-ispell company-backends)
+    (setq company-backends (delete 'company-ispell company-backends))
+    (message "company-ispell disabled"))
+   (t
+    (push 'company-ispell company-backends)
+    (message "company-ispell enabled!"))))
 #+end_src
 
 *** eglot
@@ -821,6 +835,7 @@ I performed these steps manually, and this is indicative only:
   ;;(haskell-ng-mode . eglot-ensure)
   ;;(haskell-ng-mode . eldoc-documentation-tweak)
   (haskell-ng-mode . (lambda () (setq-local tab-width 2)))
+  (haskell-ng-mode . (lambda () (setq mode-name "λ")))
   :config
   (use-package! ormolu)
   (map! :localleader
@@ -876,6 +891,16 @@ I performed these steps manually, and this is indicative only:
   (browse-url (format "https://hoogle.haskell.org/?hoogle=%s" (url-hexify-string name))))
 #+end_src
 
+#+RESULTS:
+: hoogle-name
+
+#+begin_src elisp
+(after! dumb-jump
+  (add-to-list '+lookup-provider-url-alist '("hoogle"  "https://hoogle.haskell.org/?hoogle=%s"))
+  (add-to-list '+lookup-provider-url-alist '("hackage"  "https://hackage.haskell.org/package/%s"))
+)
+#+end_src
+
 ** require
 
 FIXME: Not sure why this is required
@@ -891,7 +916,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tonyday567/ob-haskell-ng][tonyday567/ob-haskell-ng]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! ob-haskell-ng
   :load-path "~/.config/doom/repos/ob-haskell-ng"
   :config
