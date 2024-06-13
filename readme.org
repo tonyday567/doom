@@ -960,11 +960,11 @@ FIXME: Not sure why this is required
   :config
   (setq
         lsp-haskell-plugin-stan-global-on nil
-        lsp-haskell-plugin-import-lens-code-actions-on t
+        lsp-haskell-plugin-import-lens-code-actions-on nil
         lsp-haskell-plugin-ghcide-type-lenses-config-mode t
         lsp-haskell-plugin-eval-global-on nil
         lsp-haskell-plugin-ghcide-type-lenses-global-on t
-        lsp-haskell-plugin-import-lens-code-lens-on t
+        lsp-haskell-plugin-import-lens-code-lens-on nil
         lsp-haskell-plugin-hlint-diagnostics-on t
         lsp-haskell-plugin-retrie-global-on nil
         lsp-haskell-plugin-alternate-number-format-global-on nil

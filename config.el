@@ -279,13 +279,13 @@ If BIGWORD is non-nil, move by WORDS."
         completion-category-defaults nil
         completion-category-overrides '((file (styles . (partial-completion))))))
 
-  (setq erc-autojoin-channels-alist '(("libera.chat" "#haskell" "#emacs")))
-  (setq erc-hide-list '("JOIN" "PART" "QUIT"))
-  (setq erc-hide-timestamps t)
-  (setq erc-autojoin-timing 'ident)
-  ;; (erc-prompt-for-nickserv-password nil)
-  (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
-                                "324" "329" "332" "333" "353" "477"))
+(setq erc-autojoin-channels-alist '(("libera.chat" "#haskell" "#emacs")))
+(setq erc-hide-list '("JOIN" "PART" "QUIT"))
+(setq erc-hide-timestamps t)
+(setq erc-autojoin-timing 'ident)
+;; (erc-prompt-for-nickserv-password nil)
+(setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
+                              "324" "329" "332" "333" "353" "477"))
 
 (after! latex
  (setq org-latex-packages-alist '(("" "tikz-cd" t) ("" "tikz" t)))
@@ -610,7 +610,7 @@ If BIGWORD is non-nil, move by WORDS."
   (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
 )
 
- (use-package! combobulate)
+(use-package! combobulate)
 
 (after! lsp-mode
   (setq lsp-auto-execute-action nil)
@@ -633,11 +633,11 @@ If BIGWORD is non-nil, move by WORDS."
   :config
   (setq
         lsp-haskell-plugin-stan-global-on nil
-        lsp-haskell-plugin-import-lens-code-actions-on t
+        lsp-haskell-plugin-import-lens-code-actions-on nil
         lsp-haskell-plugin-ghcide-type-lenses-config-mode t
         lsp-haskell-plugin-eval-global-on nil
         lsp-haskell-plugin-ghcide-type-lenses-global-on t
-        lsp-haskell-plugin-import-lens-code-lens-on t
+        lsp-haskell-plugin-import-lens-code-lens-on nil
         lsp-haskell-plugin-hlint-diagnostics-on t
         lsp-haskell-plugin-retrie-global-on nil
         lsp-haskell-plugin-alternate-number-format-global-on nil
@@ -680,27 +680,27 @@ If BIGWORD is non-nil, move by WORDS."
   :load-path "~/.config/doom/repos/haskell-lite"
 )
 
-  (after! org
-  (map! :localleader
-        :map org-mode-map
-        (:prefix ("m" . "haskell-ng-repl")
-         :nvm "s" #'haskell-ng-repl-run
-         :nvm "p" #'haskell-lite-prompt
-         :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
-         :nvm "q" #'haskell-lite-repl-quit
-         :nvm "r" #'haskell-lite-repl-restart
-         :nvm "b" #'haskell-lite-repl-show)))
+(after! org
+(map! :localleader
+      :map org-mode-map
+      (:prefix ("m" . "haskell-ng-repl")
+       :nvm "s" #'haskell-ng-repl-run
+       :nvm "p" #'haskell-lite-prompt
+       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
+       :nvm "q" #'haskell-lite-repl-quit
+       :nvm "r" #'haskell-lite-repl-restart
+       :nvm "b" #'haskell-lite-repl-show)))
 
-  (after! org
-  (map! :localleader
-        :map haskell-ng-mode-map
-        (:prefix ("m" . "haskell-ng-repl")
-         :nvm "s" #'haskell-ng-repl-run
-         :nvm "p" #'haskell-lite-prompt
-         :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
-         :nvm "q" #'haskell-lite-repl-quit
-         :nvm "r" #'haskell-lite-repl-restart
-         :nvm "b" #'haskell-lite-repl-show)))
+(after! org
+(map! :localleader
+      :map haskell-ng-mode-map
+      (:prefix ("m" . "haskell-ng-repl")
+       :nvm "s" #'haskell-ng-repl-run
+       :nvm "p" #'haskell-lite-prompt
+       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
+       :nvm "q" #'haskell-lite-repl-quit
+       :nvm "r" #'haskell-lite-repl-restart
+       :nvm "b" #'haskell-lite-repl-show)))
 
 (use-package! tidal
     :init
