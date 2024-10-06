@@ -208,7 +208,7 @@ Global and standard doom library tweaks.
 
 ** default frame
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (defun style/left-frame ()
   (interactive)
   (cond

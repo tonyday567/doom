@@ -82,5 +82,63 @@
 (setq doom-modeline-lsp nil)
 (setq doom-modeline-modal nil)
 
+(defun style/left-frame ()
+  (interactive)
+  (cond
+   ((string-equal system-type "windows-nt") ; Microsoft Windows
+    (progn
+      (set-frame-parameter (selected-frame) 'fullscreen nil)
+      (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+      (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
+      (set-frame-parameter (selected-frame) 'top 10)
+      (set-frame-parameter (selected-frame) 'left 6)
+      (set-frame-parameter (selected-frame) 'height 40)
+      (set-frame-parameter (selected-frame) 'width 120)))
+   ((string-equal system-type "darwin") ; Mac OS X
+    (progn
+      (set-frame-parameter (selected-frame) 'fullscreen nil)
+      (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+      (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
+      (set-frame-parameter (selected-frame) 'top 23)
+      (set-frame-parameter (selected-frame) 'left 0)
+      (set-frame-parameter (selected-frame) 'height 44)
+      (set-frame-parameter (selected-frame) 'width 100)
+      (message "default-frame set")))
+   ((string-equal system-type "gnu/linux") ; linux
+    (progn
+      (message "Linux")))))
+
+(add-to-list 'initial-frame-alist '(top . 23))
+(add-to-list 'initial-frame-alist '(left . 0))
+(add-to-list 'initial-frame-alist '(height . 44))
+(add-to-list 'initial-frame-alist '(width . 100))
+
+(defun style/max-frame ()
+  (interactive)
+  (if t
+      (progn
+        (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
+        (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+        (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil))
+    (set-frame-parameter (selected-frame) 'top 26)
+    (set-frame-parameter (selected-frame) 'left 2)
+    (set-frame-parameter (selected-frame) 'width
+                         (floor (/ (float (x-display-pixel-width)) 9.15)))
+    (if (= 1050 (x-display-pixel-height))
+        (set-frame-parameter (selected-frame) 'height
+                             (if (>= emacs-major-version 24)
+                                 66
+                               55))
+      (set-frame-parameter (selected-frame) 'height
+                           (if (>= emacs-major-version 24)
+                               75
+                             64)))))
+
+(style/left-frame)  ;; Focus new window after splitting
+(map!
+   :leader
+   :nvm "tm" #'style/max-frame
+   :nvm "td" #'style/left-frame)
+
 (remove-hook 'text-mode-hook #'spell-fu-mode)
 ;;(setq spell-fu-ignore-modes (list 'org-mode))
