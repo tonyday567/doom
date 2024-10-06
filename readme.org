@@ -180,14 +180,8 @@ Global and standard doom library tweaks.
 ** globals
 
 #+begin_src elisp
-(setq evil-split-window-below t
-      evil-vsplit-window-right t
-      confirm-kill-emacs nil
-      confirm-kill-processes nil
-      shift-select-mode t
-      window-combination-resize t
-      case-fold-search t
-      auto-save-default t)
+(setq confirm-kill-emacs nil
+      confirm-kill-processes nil)
 
 ;; setq-default sets variables that are usually local to buffers
 (setq-default truncate-lines nil
@@ -203,7 +197,7 @@ Global and standard doom library tweaks.
 
 ** doom-modeline
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (setq doom-modeline-lsp-icon nil)
 (setq doom-modeline-buffer-encoding nil)
 (setq doom-modeline-buffer-state-icon nil)
@@ -214,7 +208,7 @@ Global and standard doom library tweaks.
 
 ** default frame
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (defun style/left-frame ()
   (interactive)
   (cond
@@ -276,7 +270,7 @@ Global and standard doom library tweaks.
 
 ** evil
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (map!
  (:map 'override
    :v "v" #'er/expand-region
@@ -287,7 +281,7 @@ Global and standard doom library tweaks.
    :m "k" #'evil-previous-visual-line))
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (setq evil-kill-on-visual-paste nil
       evil-want-C-u-scroll nil
       evil-want-integration t
@@ -297,7 +291,7 @@ Global and standard doom library tweaks.
       evil-highlight-closing-paren-at-point-states nil)
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (defun evil-forward-after-end (thing &optional count)
   "Move forward to end of THING.
 The motion is repeated COUNT times."
@@ -345,13 +339,13 @@ If BIGWORD is non-nil, move by WORDS."
 ** packages
 *** vertico
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (setq vertico-sort-function #'vertico-sort-history-alpha)
 #+end_src
 
 *** isearch
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (define-key isearch-mode-map (kbd "M-j") 'avy-isearch)
 
 (defun isearch-forward-other-window (prefix)
@@ -387,7 +381,7 @@ If BIGWORD is non-nil, move by WORDS."
 
 Flipping gss and gs/
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (map!
  (:map 'override
    :nvm "gss" #'evil-avy-goto-char-timer
@@ -395,7 +389,7 @@ Flipping gss and gs/
 #+end_src
 
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! avy
  :config
  (setq avy-all-windows t)
@@ -415,14 +409,14 @@ Flipping gss and gs/
 
 *** ace-window
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (map!
    :leader "w w" #'ace-window)
 #+end_src
 
 *** consult
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (map!
    :leader "s f" #'consult-find
    :leader :desc "consult-outline" "s o" #'consult-outline
@@ -451,7 +445,7 @@ Turn off spell-fu by default. If you remove the hook after! spell-fu, it's too l
 
 *** orderless
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package orderless
   :init
   (setq completion-styles '(orderless)
@@ -463,7 +457,7 @@ Turn off spell-fu by default. If you remove the hook after! spell-fu, it's too l
 
 message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
-  #+begin_src elisp
+  #+begin_src elisp :tangle no
   (setq erc-autojoin-channels-alist '(("libera.chat" "#haskell" "#emacs")))
   (setq erc-hide-list '("JOIN" "PART" "QUIT"))
   (setq erc-hide-timestamps t)
@@ -475,7 +469,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 *** latex
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! latex
  (setq org-latex-packages-alist '(("" "tikz-cd" t) ("" "tikz" t)))
 )
@@ -483,7 +477,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 *** flycheck
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! flycheck
   (map!
     :n "M-n" 'flycheck-next-error
@@ -492,7 +486,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 *** company
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! company
   :config
   (setq +company-backend-alist (assq-delete-all 'prog-mode +company-backend-alist))
@@ -502,13 +496,13 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 #+RESULTS:
 
-#+begin_src elisp :tangle no
+#+begin_src elisp :tangle no :tangle no
 (after! haskell-ng-mode
     (set-company-backend! 'haskell-ng-mode nil)
     (set-company-backend! 'haskell-ng-mode '(company-capf)))
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (defun toggle-company-ispell ()
   "Toggle company ispell backend."
   (interactive)
@@ -523,7 +517,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 *** eglot
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! eglot
   (setq-default eglot-workspace-configuration
                 '((haskell
@@ -556,7 +550,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 * Org
 ** general tweaks
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! org
   :config
   (setq
@@ -585,7 +579,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 ** org-agenda
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! org-agenda
   :config
   (setq org-agenda-span 'week
@@ -628,7 +622,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 ** org-capture
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! org
   (setq
    org-capture-templates
@@ -645,7 +639,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 ** Turn company mode off
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! org
   :config
   (progn
@@ -655,7 +649,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 ** yank-into-block
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! org
   :config
   (defun display-ansi-colors ()
@@ -741,7 +735,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 [[https://github.com/unhammer/org-random-todo][unhammer/org-random-todo]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! org
   (use-package! org-random-todo
     :defer-incrementally t
@@ -785,7 +779,7 @@ Setup is section-based. To add a post:
 
 A ToDo in the header makes the post a draft.
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! org
   :config
   (use-package backtrace)
@@ -818,7 +812,7 @@ I performed these steps manually, and this is indicative only:
 
 [[https://gitlab.com/magus/haskell-ng-mode][Magnus Therning / haskell-ng-mode · GitLab]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! treesit
 (use-package! haskell-ng-mode
   :diminish haskell-ng-mode
@@ -875,7 +869,7 @@ I performed these steps manually, and this is indicative only:
          )))
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (defun hackage-package (package)
   "Open current PACKAGE at hackage."
   (interactive (list
@@ -894,7 +888,7 @@ I performed these steps manually, and this is indicative only:
 #+RESULTS:
 : hoogle-name
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! dumb-jump
   (add-to-list '+lookup-provider-url-alist '("hoogle"  "https://hoogle.haskell.org/?hoogle=%s"))
   (add-to-list '+lookup-provider-url-alist '("hackage"  "https://hackage.haskell.org/package/%s"))
@@ -905,7 +899,7 @@ I performed these steps manually, and this is indicative only:
 
 FIXME: Not sure why this is required
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (require 'haskell-ng-mode)
 #+end_src
 
@@ -916,7 +910,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tonyday567/ob-haskell-ng][tonyday567/ob-haskell-ng]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! ob-haskell-ng
   :load-path "~/.config/doom/repos/ob-haskell-ng"
   :config
@@ -928,13 +922,13 @@ FIXME: Not sure why this is required
 
 [[https://github.com/mickeynp/combobulate][mickeynp/combobulate]]
 
- #+begin_src elisp
+ #+begin_src elisp :tangle no
  (use-package! combobulate)
  #+end_src
 
 ** lsp
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! lsp-mode
   (setq lsp-auto-execute-action nil)
   (setq lsp-modeline-diagnostics-enable nil)
@@ -948,14 +942,14 @@ FIXME: Not sure why this is required
 )
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! lsp-ui
   (message "after lsp-ui triggered")
   (setq lsp-ui-show-with-mouse t)
 )
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! lsp-haskell
   :config
   (setq
@@ -980,7 +974,7 @@ FIXME: Not sure why this is required
  )
 #+end_src
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! lsp-treemacs
   :config
   (lsp-treemacs-sync-mode 1)
@@ -991,7 +985,7 @@ FIXME: Not sure why this is required
 
 ** treesit
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 
 (after! treesit
 (defun ts-inspect ()
@@ -1008,7 +1002,7 @@ FIXME: Not sure why this is required
 
 ** flymake
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (after! haskell-ng-mode
   (map! :localleader
         :map haskell-ng-mode-map
@@ -1021,7 +1015,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tonyday567/haskell-lite][tonyday567/haskell-lite]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! haskell-lite
   :load-path "~/.config/doom/repos/haskell-lite"
 )
@@ -1029,7 +1023,7 @@ FIXME: Not sure why this is required
 
 *** org-babel bindings
 
-  #+begin_src elisp
+  #+begin_src elisp :tangle no
   (after! org
   (map! :localleader
         :map org-mode-map
@@ -1043,7 +1037,7 @@ FIXME: Not sure why this is required
   #+end_src
 *** haskell-ng-repl bindings
 
-  #+begin_src elisp
+  #+begin_src elisp :tangle no
   (after! org
   (map! :localleader
         :map haskell-ng-mode-map
@@ -1059,7 +1053,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tidalcycles/Tidal][tidalcycles/Tidal: Pattern language]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! tidal
     :init
     (progn
@@ -1074,7 +1068,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/Malabarba/beacon][Malabarba/beacon]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! beacon
   :config (beacon-mode 1))
 #+end_src
@@ -1083,14 +1077,14 @@ FIXME: Not sure why this is required
 
 [[https://github.com/casouri/iscroll][casouri/iscroll]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! iscroll
   :config (iscroll-mode 1))
 #+end_src
 
 ** diminish
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! diminish)
 #+end_src
 
@@ -1098,7 +1092,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/ymarco/auto-activating-snippets][ymarco/auto-activating-snippets]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! aas
     :hook (org-mode . aas-activate-for-major-mode)
     :config
@@ -1113,7 +1107,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/ppareit/graphviz-dot-mode][ppareit/graphviz-dot-mode]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package graphviz-dot-mode
   :config
   (setq graphviz-dot-indent-width 4))
@@ -1122,7 +1116,7 @@ FIXME: Not sure why this is required
 
 ** uiua
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! uiua-ts-mode
   :mode "\\.ua\\'")
 #+end_src
@@ -1132,7 +1126,7 @@ FIXME: Not sure why this is required
 
 [[https://protesilaos.com/codelog/2023-06-03-emacs-spacious-padding/][Emacs: my new ‘spacious-padding’ package | Protesilaos Stavrou]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! spacious-padding
   :config
     (spacious-padding-mode t)
@@ -1143,7 +1137,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tumashu/vertico-posframe][tumashu/vertico-posframe]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! vertico-posframe
   :config
     (vertico-posframe-mode t)
@@ -1157,7 +1151,7 @@ FIXME: Not sure why this is required
 
 [[https://orgmode.org/manual/Matching-tags-and-properties.html][Matching tags and properties (The Org Manual)]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! dashboard
   :config
     (setq dashboard-items
@@ -1186,7 +1180,7 @@ FIXME: Not sure why this is required
 
 ** ef-themes
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! ef-themes
   :config
   (setq ef-themes-to-toggle '(ef-bio ef-dark))

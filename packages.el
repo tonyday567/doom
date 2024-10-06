@@ -73,6 +73,9 @@
 (package! ef-themes)
 (package! lsp-treemacs)
 
+; https://github.com/doomemacs/doomemacs/issues/8089
+(package! compat :pin "9a234d0")
+
 ;; (package! haskell-ng-mode
 ;;   :recipe (:type git
 ;;            :repo "git@gitlab.com:tonyday567/haskell-ng-mode.git"
