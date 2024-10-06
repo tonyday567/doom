@@ -75,5 +75,12 @@
       "M-SPC" #'cycle-spacing
       [remap ibuffer] #'ibuffer-jump)
 
+(setq doom-modeline-lsp-icon nil)
+(setq doom-modeline-buffer-encoding nil)
+(setq doom-modeline-buffer-state-icon nil)
+(setq doom-modeline-vcs-max-length 8)
+(setq doom-modeline-lsp nil)
+(setq doom-modeline-modal nil)
+
 (remove-hook 'text-mode-hook #'spell-fu-mode)
 ;;(setq spell-fu-ignore-modes (list 'org-mode))

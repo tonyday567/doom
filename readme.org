@@ -197,7 +197,7 @@ Global and standard doom library tweaks.
 
 ** doom-modeline
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (setq doom-modeline-lsp-icon nil)
 (setq doom-modeline-buffer-encoding nil)
 (setq doom-modeline-buffer-state-icon nil)
@@ -336,7 +336,23 @@ If BIGWORD is non-nil, move by WORDS."
  :n "U" 'evil-undo)
 #+end_src
 
-** packages
+** default package tweaks
+*** spell-fu
+
+[[https://github.com/doomemacs/doomemacs/issues/6246][doomemacs/doomemacs#6246 +spell/add-word does not create a personal dictionar...]]
+
+#+begin_src sh :tangle no
+mkdir -p ~/.config/emacs/.local/etc/ispell && echo personal_ws-1.1 en 0 >> ~/.config/emacs/.local/etc/ispell/.pws
+#+end_src
+
+Turn off spell-fu by default. If you remove the hook after! spell-fu, it's too late. spell-fu-ignore-modes only works if spell-fu-global-mode is set.
+
+#+begin_src elisp
+(remove-hook 'text-mode-hook #'spell-fu-mode)
+;;(setq spell-fu-ignore-modes (list 'org-mode))
+#+end_src
+
+
 *** vertico
 
 #+begin_src elisp :tangle no
@@ -426,21 +442,6 @@ Flipping gss and gs/
    :leader "r s" #'consult-register-store
    :leader "r r" #'consult-register
    [remap jump-to-register] #'consult-register-load)
-#+end_src
-
-*** spell-fu
-
-[[https://github.com/doomemacs/doomemacs/issues/6246][doomemacs/doomemacs#6246 +spell/add-word does not create a personal dictionar...]]
-
-#+begin_src sh :tangle no
-mkdir -p ~/.config/emacs/.local/etc/ispell && echo personal_ws-1.1 en 0 >> ~/.config/emacs/.local/etc/ispell/.pws
-#+end_src
-
-Turn off spell-fu by default. If you remove the hook after! spell-fu, it's too late. spell-fu-ignore-modes only works if spell-fu-global-mode is set.
-
-#+begin_src elisp
-(remove-hook 'text-mode-hook #'spell-fu-mode)
-;;(setq spell-fu-ignore-modes (list 'org-mode))
 #+end_src
 
 *** orderless
