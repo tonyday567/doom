@@ -555,6 +555,39 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 #+end_src
 
+* Dashboard
+
+[[https://github.com/emacs-dashboard/emacs-dashboard][emacs-dashboard/emacs-dashboard]]
+
+[[https://orgmode.org/manual/Matching-tags-and-properties.html][Matching tags and properties (The Org Manual)]]
+
+
+#+begin_src elisp
+(use-package! dashboard
+  :config
+    (setq dashboard-items
+      '((recents  . 5)
+        (agenda . 10)
+        (projects . 5)
+        (bookmarks . 5)))
+    (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
+    ;(setq dashboard-display-icons-p t)
+    ;(setq dashboard-icon-type 'nerd-icons)
+    (setq dashboard-set-navigator t)
+    (setq dashboard-startup-banner 'logo)
+    (setq dashboard-set-footer nil)
+    (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
+    (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+    (setq dashboard-agenda-prefix-format "%s%-12:c")
+    ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
+    (setq dashboard-item-names '(("Recent Files:" . "Recent:")
+                                 ("Agenda for the coming week:" . "Next:")))
+    (setq dashboard-match-agenda-entry "+TODO=\"Next\"|SCHEDULED<\"<now>\"")
+    ;(setq dashboard-set-heading-icons t)
+    ;(setq dashboard-set-file-icons t)
+    (map! :leader "ox" #'dashboard-open)
+    (dashboard-setup-startup-hook))
+#+end_src
 * Org
 ** general tweaks
 
@@ -800,7 +833,90 @@ A ToDo in the header makes the post a draft.
         (:nvm "lp" #'org-hugo-export-wim-to-md)))
 #+end_src
 
-* haskell-ng
+* Non-standard packages
+** beacon
+
+[[https://github.com/Malabarba/beacon][Malabarba/beacon]]
+
+#+begin_src elisp
+(use-package! beacon
+  :config (beacon-mode 1))
+#+end_src
+
+** iscroll
+
+[[https://github.com/casouri/iscroll][casouri/iscroll]]
+
+#+begin_src elisp
+(use-package! iscroll
+  :config (iscroll-mode 1))
+#+end_src
+
+** diminish
+
+#+begin_src elisp
+(use-package! diminish)
+#+end_src
+
+** auto-activating-snippets
+
+[[https://github.com/ymarco/auto-activating-snippets][ymarco/auto-activating-snippets]]
+
+#+begin_src
+(use-package! aas
+    :hook (org-mode . aas-activate-for-major-mode)
+    :config
+        (aas-set-snippets 'org-mode
+            ;; expand unconditionally
+            "-]" "- [ ] "
+            ";ig" #'insert-register
+            ";ro" ":results output"))
+#+end_src
+
+** graphviz
+
+[[https://github.com/ppareit/graphviz-dot-mode][ppareit/graphviz-dot-mode]]
+
+#+begin_src elisp
+(use-package graphviz-dot-mode
+  :config
+  (setq graphviz-dot-indent-width 4))
+  (setq graphviz-dot-preview-extension "svg")
+#+end_src
+
+** uiua
+
+#+begin_src elisp
+(use-package! uiua-ts-mode
+  :mode "\\.ua\\'")
+#+end_src
+
+** spacious-padding
+
+
+[[https://protesilaos.com/codelog/2023-06-03-emacs-spacious-padding/][Emacs: my new ‘spacious-padding’ package | Protesilaos Stavrou]]
+
+#+begin_src elisp
+(use-package! spacious-padding
+  :config
+    (spacious-padding-mode t)
+)
+#+end_src
+
+** vertico-posframe
+
+[[https://github.com/tumashu/vertico-posframe][tumashu/vertico-posframe]]
+
+#+begin_src elisp
+(use-package! vertico-posframe
+  :config
+    (vertico-posframe-mode t)
+    (map! :leader "tp" #'vertico-posframe-cleanup)
+)
+#+end_src
+
+
+* haskell-ng (off)
 
 [[https://gitlab.com/magus/mes][Magnus Therning / My Emacs Setup · GitLab]]
 
@@ -824,7 +940,7 @@ I performed these steps manually, and this is indicative only:
 (after! treesit
 (use-package! haskell-ng-mode
   :diminish haskell-ng-mode
-  :load-path "~/.config/doom/repos/haskell-ng-mode"
+  ;; :load-path "~/.config/doom/repos/haskell-ng-mode"
   :init
   (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
   ; (add-to-list 'treesit-language-source-alist '(cabal ("https://gitlab.com/magus/tree-sitter-cabal.git" "main" "src" "gcc-13" "c++-13")))
@@ -918,9 +1034,9 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tonyday567/ob-haskell-ng][tonyday567/ob-haskell-ng]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! ob-haskell-ng
-  :load-path "~/.config/doom/repos/ob-haskell-ng"
+  ;; :load-path "~/.config/doom/repos/ob-haskell-ng"
   :config
   (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
 )
@@ -930,13 +1046,13 @@ FIXME: Not sure why this is required
 
 [[https://github.com/mickeynp/combobulate][mickeynp/combobulate]]
 
- #+begin_src elisp :tangle no
+ #+begin_src elisp
  (use-package! combobulate)
  #+end_src
 
 ** lsp
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! lsp-mode
   (setq lsp-auto-execute-action nil)
   (setq lsp-modeline-diagnostics-enable nil)
@@ -950,14 +1066,14 @@ FIXME: Not sure why this is required
 )
 #+end_src
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! lsp-ui
   (message "after lsp-ui triggered")
   (setq lsp-ui-show-with-mouse t)
 )
 #+end_src
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! lsp-haskell
   :config
   (setq
@@ -982,7 +1098,7 @@ FIXME: Not sure why this is required
  )
 #+end_src
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! lsp-treemacs
   :config
   (lsp-treemacs-sync-mode 1)
@@ -990,10 +1106,9 @@ FIXME: Not sure why this is required
 )
 #+end_src
 
-
 ** treesit
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 
 (after! treesit
 (defun ts-inspect ()
@@ -1010,7 +1125,7 @@ FIXME: Not sure why this is required
 
 ** flymake
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! haskell-ng-mode
   (map! :localleader
         :map haskell-ng-mode-map
@@ -1023,15 +1138,15 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tonyday567/haskell-lite][tonyday567/haskell-lite]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! haskell-lite
-  :load-path "~/.config/doom/repos/haskell-lite"
+  ;; :load-path "~/.config/doom/repos/haskell-lite"
 )
 #+end_src
 
 *** org-babel bindings
 
-  #+begin_src elisp :tangle no
+  #+begin_src elisp
   (after! org
   (map! :localleader
         :map org-mode-map
@@ -1045,7 +1160,7 @@ FIXME: Not sure why this is required
   #+end_src
 *** haskell-ng-repl bindings
 
-  #+begin_src elisp :tangle no
+  #+begin_src elisp
   (after! org
   (map! :localleader
         :map haskell-ng-mode-map
@@ -1061,7 +1176,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tidalcycles/Tidal][tidalcycles/Tidal: Pattern language]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! tidal
     :init
     (progn
@@ -1071,144 +1186,22 @@ FIXME: Not sure why this is required
       ))
 #+end_src
 
-* Non-standard packages
-** beacon
 
-[[https://github.com/Malabarba/beacon][Malabarba/beacon]]
+* haskell-ts-mode (off)
 
-#+begin_src elisp
-(use-package! beacon
-  :config (beacon-mode 1))
-#+end_src
+[[https://codeberg.org/pranshu/haskell-ts-mode#headline-5][pranshu/haskell-ts-mode - Codeberg.org]]
 
-** iscroll
-
-[[https://github.com/casouri/iscroll][casouri/iscroll]]
-
-#+begin_src elisp
-(use-package! iscroll
-  :config (iscroll-mode 1))
-#+end_src
-
-** diminish
-
-#+begin_src elisp
-(use-package! diminish)
-#+end_src
-
-** auto-activating-snippets
-
-[[https://github.com/ymarco/auto-activating-snippets][ymarco/auto-activating-snippets]]
-
-#+begin_src
-(use-package! aas
-    :hook (org-mode . aas-activate-for-major-mode)
-    :config
-        (aas-set-snippets 'org-mode
-            ;; expand unconditionally
-            "-]" "- [ ] "
-            ";ig" #'insert-register
-            ";ro" ":results output"))
-#+end_src
-
-** graphviz
-
-[[https://github.com/ppareit/graphviz-dot-mode][ppareit/graphviz-dot-mode]]
-
-#+begin_src elisp
-(use-package graphviz-dot-mode
-  :config
-  (setq graphviz-dot-indent-width 4))
-  (setq graphviz-dot-preview-extension "svg")
-#+end_src
-
-** uiua
-
-#+begin_src elisp
-(use-package! uiua-ts-mode
-  :mode "\\.ua\\'")
-#+end_src
-
-** spacious-padding
-
-
-[[https://protesilaos.com/codelog/2023-06-03-emacs-spacious-padding/][Emacs: my new ‘spacious-padding’ package | Protesilaos Stavrou]]
-
-#+begin_src elisp
-(use-package! spacious-padding
-  :config
-    (spacious-padding-mode t)
-)
-#+end_src
-
-** vertico-posframe
-
-[[https://github.com/tumashu/vertico-posframe][tumashu/vertico-posframe]]
-
-#+begin_src elisp
-(use-package! vertico-posframe
-  :config
-    (vertico-posframe-mode t)
-    (map! :leader "tp" #'vertico-posframe-cleanup)
-)
-#+end_src
-
-** dashboard
-
-[[https://github.com/emacs-dashboard/emacs-dashboard][emacs-dashboard/emacs-dashboard]]
-
-[[https://orgmode.org/manual/Matching-tags-and-properties.html][Matching tags and properties (The Org Manual)]]
 
 #+begin_src elisp :tangle no
-(use-package! dashboard
-  :config
-    (setq dashboard-items
-      '((recents  . 5)
-        (agenda . 10)
-        (projects . 5)
-        (bookmarks . 5)))
-    (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
-    ;(setq dashboard-display-icons-p t)
-    ;(setq dashboard-icon-type 'nerd-icons)
-    (setq dashboard-set-navigator t)
-    (setq dashboard-startup-banner nil)
-    (setq dashboard-set-footer nil)
-    (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
-    (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
-    (setq dashboard-agenda-prefix-format "%s%-12:c")
-    ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
-    (setq dashboard-item-names '(("Recent Files:" . "Recent:")
-                                 ("Agenda for the coming week:" . "Next:")))
-    (setq dashboard-match-agenda-entry "+TODO=\"Next\"|SCHEDULED<\"<now>\"")
-    ;(setq dashboard-set-heading-icons t)
-    ;(setq dashboard-set-file-icons t)
-    (map! :leader "ox" #'dashboard-open)
-    (dashboard-setup-startup-hook))
+(after! treesit
+(use-package! haskell-ts-mode
+  :init
+  (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
+  (add-to-list 'major-mode-remap-alist '(haskell-mode . haskell-ts-mode))
+  (defalias 'haskell-mode #'haskell-ts-mode)
+))
 #+end_src
 
 #+begin_src elisp :tangle no
-(use-package! dashboard
-  :config
-    (setq dashboard-items
-      '((recents  . 5)
-        (agenda . 10)
-        (projects . 5)
-        (bookmarks . 5)))
-    (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
-    ;(setq dashboard-display-icons-p t)
-    ;(setq dashboard-icon-type 'nerd-icons)
-    (setq dashboard-set-navigator t)
-    (setq dashboard-startup-banner nil)
-    (setq dashboard-set-footer nil)
-    (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
-    (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
-    (setq dashboard-agenda-prefix-format "%s%-12:c")
-    ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
-    (setq dashboard-item-names '(("Recent Files:" . "Recent:")
-                                 ("Agenda for the coming week:" . "Next:")))
-    (setq dashboard-match-agenda-entry "+TODO=\"Next\"|SCHEDULED<\"<now>\"")
-    ;(setq dashboard-set-heading-icons t)
-    ;(setq dashboard-set-file-icons t)
-    (map! :leader "ox" #'dashboard-open)
-    (dashboard-setup-startup-hook))
+(require 'haskell-ts-mode)
 #+end_src

@@ -301,6 +301,31 @@ If BIGWORD is non-nil, move by WORDS."
     (push 'company-ispell company-backends)
     (message "company-ispell enabled!"))))
 
+(use-package! dashboard
+  :config
+    (setq dashboard-items
+      '((recents  . 5)
+        (agenda . 10)
+        (projects . 5)
+        (bookmarks . 5)))
+    (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
+    ;(setq dashboard-display-icons-p t)
+    ;(setq dashboard-icon-type 'nerd-icons)
+    (setq dashboard-set-navigator t)
+    (setq dashboard-startup-banner 'logo)
+    (setq dashboard-set-footer nil)
+    (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
+    (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+    (setq dashboard-agenda-prefix-format "%s%-12:c")
+    ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
+    (setq dashboard-item-names '(("Recent Files:" . "Recent:")
+                                 ("Agenda for the coming week:" . "Next:")))
+    (setq dashboard-match-agenda-entry "+TODO=\"Next\"|SCHEDULED<\"<now>\"")
+    ;(setq dashboard-set-heading-icons t)
+    ;(setq dashboard-set-file-icons t)
+    (map! :leader "ox" #'dashboard-open)
+    (dashboard-setup-startup-hook))
+
 (after! org
   :config
   (setq
@@ -504,3 +529,13 @@ If BIGWORD is non-nil, move by WORDS."
     (vertico-posframe-mode t)
     (map! :leader "tp" #'vertico-posframe-cleanup)
 )
+
+(after! treesit
+(use-package! haskell-ts-mode
+  :init
+  (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
+  (add-to-list 'major-mode-remap-alist '(haskell-mode . haskell-ts-mode))
+  (defalias 'haskell-mode #'haskell-ts-mode)
+))
+
+(require 'haskell-ts-mode)
