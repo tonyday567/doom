@@ -530,12 +530,169 @@ If BIGWORD is non-nil, move by WORDS."
     (map! :leader "tp" #'vertico-posframe-cleanup)
 )
 
+(use-package! combobulate)
+
+(after! lsp-mode
+  (setq lsp-auto-execute-action nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (defun lsp-toggle-mouse-docs ()
+   (interactive)
+   (if lsp-ui-doc-show-with-mouse
+     (setq lsp-ui-doc-show-with-mouse nil)
+     (setq lsp-ui-doc-show-with-mouse t)
+   )
+  )
+)
+
+(after! lsp-ui
+  (message "after lsp-ui triggered")
+  (setq lsp-ui-show-with-mouse t)
+)
+
+(use-package! lsp-treemacs
+  :config
+  (lsp-treemacs-sync-mode 1)
+  (setq lsp-treemacs-errors-position-params '((side . left)))
+)
+
 (after! treesit
-(use-package! haskell-ts-mode
+(defun ts-inspect ()
+  (interactive)
+  (when-let* ((nap (treesit-node-at (point))))
+    (message "%S - %S" nap (treesit-node-type nap))))
+
+(defun ts-query-root (query)
+  (interactive "sQuery: ")
+  (let ((ss0 (treesit-query-capture (treesit-buffer-root-node) query)))
+    (message "%S" ss0))))
+
+(after! treesit
+(use-package! haskell-ng-mode
+  :diminish haskell-ng-mode
+  ;; :load-path "~/.config/doom/repos/haskell-ng-mode"
   :init
   (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
-  (add-to-list 'major-mode-remap-alist '(haskell-mode . haskell-ts-mode))
-  (defalias 'haskell-mode #'haskell-ts-mode)
-))
+  ; (add-to-list 'treesit-language-source-alist '(cabal ("https://gitlab.com/magus/tree-sitter-cabal.git" "main" "src" "gcc-13" "c++-13")))
+  (add-to-list 'treesit-language-source-alist '(cabal ("https://gitlab.com/magus/tree-sitter-cabal.git")))
+  (add-to-list 'major-mode-remap-alist '(haskell-mode . haskell-ng-mode))
+  (add-to-list 'major-mode-remap-alist '(cabal-mode . cabal-ng-mode))
+  (defalias 'haskell-mode #'haskell-ng-mode)
+  (defalias 'cabal-mode #'cabal-ng-mode)
+  :hook
+  ;;(haskell-ng-mode . eglot-ensure)
+  ;;(haskell-ng-mode . eldoc-documentation-tweak)
+  (haskell-ng-mode . (lambda () (setq-local tab-width 2)))
+  (haskell-ng-mode . (lambda () (setq mode-name "λ")))
+  :config
+  (use-package! ormolu)
+  (map! :localleader
+        :map haskell-ng-mode-map
+        :nvm "'" #'haskell-ng-repl-run
+        :nvm "h" #'hoogle-name
+        :nvm "p" #'hackage-package
+        (:prefix ("=" . "format")
+         :nvm "=" #'ormolu-format-buffer)
+        (:prefix ("e" . "eglot")
+         :nvm "e" #'eglot
+         :nvm "d" #'eldoc-documentation-tweak
+         :nvm "D" #'eldoc-documentation-lsp-tweak
+         :nvm "r" #'eglot-reconnect
+         :nvm "q" #'eglot-shutdown)
+        (:prefix ("t" . "treemacs")
+         :nvm "c" #'lsp-treemacs-call-hierarchy
+         :nvm "e" #'lsp-treemacs-errors-list
+         :nvm "r" #'lsp-treemacs-references)
+        (:prefix ("l" . "lsp")
+         :nvm "m" #'lsp-toggle-mouse-docs
+         :nvm "l" #'lsp
+         :nvm "f" #'consult-flycheck
+         :nvm "F" #'consult-lsp-diagnostics
+         :nvm "i" #'toggle-import-lens-code
+         :nvm "s" #'lsp-ui-sideline-mode
+         :nvm "r" #'lsp-workspace-restart
+         :nvm "q" #'lsp-workspace-shutdown))
 
-(require 'haskell-ts-mode)
+  (map! :localleader
+        :map cabal-ng-mode-map
+        (:prefix ("=" . "format")
+         :nvm "=" #'cabal-format-buffer
+         :nvm "r" #'cabal-format-region)
+        :nvm "p" #'hackage-package
+        :nvm "h" #'hoogle-name
+         )))
+
+(defun hackage-package (package)
+  "Open current PACKAGE at hackage."
+  (interactive (list
+                (read-string (format "Lookup package (%s): " (thing-at-point 'symbol))
+                             nil nil (thing-at-point 'word))))
+  (browse-url (format "https://hackage.haskell.org/package/%s" (url-hexify-string package))))
+
+(defun hoogle-name (name)
+  "Lookup NAME at hoogle."
+  (interactive (list
+                (read-string (format "Hoogle lookup: %s" (thing-at-point 'symbol))
+                             nil nil (thing-at-point 'symbol))))
+  (browse-url (format "https://hoogle.haskell.org/?hoogle=%s" (url-hexify-string name))))
+
+(after! dumb-jump
+  (add-to-list '+lookup-provider-url-alist '("hoogle"  "https://hoogle.haskell.org/?hoogle=%s"))
+  (add-to-list '+lookup-provider-url-alist '("hackage"  "https://hackage.haskell.org/package/%s"))
+)
+
+(require 'haskell-ng-mode)
+
+(use-package! lsp-haskell
+  :config
+  (setq
+        lsp-haskell-plugin-stan-global-on nil
+        lsp-haskell-plugin-import-lens-code-actions-on nil
+        lsp-haskell-plugin-ghcide-type-lenses-config-mode t
+        lsp-haskell-plugin-eval-global-on nil
+        lsp-haskell-plugin-ghcide-type-lenses-global-on t
+        lsp-haskell-plugin-import-lens-code-lens-on nil
+        lsp-haskell-plugin-hlint-diagnostics-on t
+        lsp-haskell-plugin-retrie-global-on nil
+        lsp-haskell-plugin-alternate-number-format-global-on nil
+        )
+  (defun toggle-import-lens-code ()
+   (interactive)
+   (if lsp-haskell-plugin-import-lens-code-lens-on
+     (setq lsp-haskell-plugin-import-lens-code-lens-on nil)
+     (setq lsp-haskell-plugin-import-lens-code-lens-on t)
+   )
+   (lsp-workspace-restart (lsp--read-workspace))
+  )
+ )
+
+(use-package! ob-haskell-ng
+  :load-path "~/.config/doom/repos/ob-haskell-ng"
+  :config
+  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
+)
+
+(use-package! haskell-lite
+  :load-path "~/.config/doom/repos/haskell-lite"
+)
+
+(after! org
+(map! :localleader
+      :map org-mode-map
+      (:prefix ("m" . "haskell-ng-repl")
+       :nvm "s" #'haskell-ng-repl-run
+       :nvm "p" #'haskell-lite-prompt
+       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
+       :nvm "q" #'haskell-lite-repl-quit
+       :nvm "r" #'haskell-lite-repl-restart
+       :nvm "b" #'haskell-lite-repl-show)))
+
+(after! org
+(map! :localleader
+      :map haskell-ng-mode-map
+      (:prefix ("m" . "haskell-ng-repl")
+       :nvm "s" #'haskell-ng-repl-run
+       :nvm "p" #'haskell-lite-prompt
+       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
+       :nvm "q" #'haskell-lite-repl-quit
+       :nvm "r" #'haskell-lite-repl-restart
+       :nvm "b" #'haskell-lite-repl-show)))

@@ -915,12 +915,82 @@ A ToDo in the header makes the post a draft.
 )
 #+end_src
 
+* treesitter + lsp
 
-* haskell-ng (off)
+** combobulate
+
+[[https://github.com/mickeynp/combobulate][mickeynp/combobulate]]
+
+ #+begin_src elisp
+ (use-package! combobulate)
+ #+end_src
+
+** lsp
+
+#+begin_src elisp
+(after! lsp-mode
+  (setq lsp-auto-execute-action nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (defun lsp-toggle-mouse-docs ()
+   (interactive)
+   (if lsp-ui-doc-show-with-mouse
+     (setq lsp-ui-doc-show-with-mouse nil)
+     (setq lsp-ui-doc-show-with-mouse t)
+   )
+  )
+)
+#+end_src
+
+#+begin_src elisp
+(after! lsp-ui
+  (message "after lsp-ui triggered")
+  (setq lsp-ui-show-with-mouse t)
+)
+#+end_src
+
+
+#+begin_src elisp
+(use-package! lsp-treemacs
+  :config
+  (lsp-treemacs-sync-mode 1)
+  (setq lsp-treemacs-errors-position-params '((side . left)))
+)
+#+end_src
+
+** treesit
+
+#+begin_src elisp
+
+(after! treesit
+(defun ts-inspect ()
+  (interactive)
+  (when-let* ((nap (treesit-node-at (point))))
+    (message "%S - %S" nap (treesit-node-type nap))))
+
+(defun ts-query-root (query)
+  (interactive "sQuery: ")
+  (let ((ss0 (treesit-query-capture (treesit-buffer-root-node) query)))
+    (message "%S" ss0))))
+
+#+end_src
+
+** flymake (off)
+
+#+begin_src elisp :tangle no
+(after! haskell-ng-mode
+  (map! :localleader
+        :map haskell-ng-mode-map
+        "n" #'flymake-goto-next-error
+        "p" #'flymake-goto-prev-error
+        "e" #'consult-flymake))
+#+end_src
+
+
+* haskell-ng
 
 [[https://gitlab.com/magus/mes][Magnus Therning / My Emacs Setup · GitLab]]
 
-** treesit installation (run first-time only)
+** treesit installation (off - run first-time only)
 
 I performed these steps manually, and this is indicative only:
 
@@ -936,7 +1006,7 @@ I performed these steps manually, and this is indicative only:
 
 [[https://gitlab.com/magus/haskell-ng-mode][Magnus Therning / haskell-ng-mode · GitLab]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! treesit
 (use-package! haskell-ng-mode
   :diminish haskell-ng-mode
@@ -993,7 +1063,7 @@ I performed these steps manually, and this is indicative only:
          )))
 #+end_src
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (defun hackage-package (package)
   "Open current PACKAGE at hackage."
   (interactive (list
@@ -1012,7 +1082,7 @@ I performed these steps manually, and this is indicative only:
 #+RESULTS:
 : hoogle-name
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! dumb-jump
   (add-to-list '+lookup-provider-url-alist '("hoogle"  "https://hoogle.haskell.org/?hoogle=%s"))
   (add-to-list '+lookup-provider-url-alist '("hackage"  "https://hackage.haskell.org/package/%s"))
@@ -1023,55 +1093,14 @@ I performed these steps manually, and this is indicative only:
 
 FIXME: Not sure why this is required
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (require 'haskell-ng-mode)
 #+end_src
 
 #+RESULTS:
 : haskell-ng-mode
 
-** ob-haskell-ng
-
-[[https://github.com/tonyday567/ob-haskell-ng][tonyday567/ob-haskell-ng]]
-
-#+begin_src elisp
-(use-package! ob-haskell-ng
-  ;; :load-path "~/.config/doom/repos/ob-haskell-ng"
-  :config
-  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
-)
-#+end_src
-
-** combobulate
-
-[[https://github.com/mickeynp/combobulate][mickeynp/combobulate]]
-
- #+begin_src elisp
- (use-package! combobulate)
- #+end_src
-
-** lsp
-
-#+begin_src elisp
-(after! lsp-mode
-  (setq lsp-auto-execute-action nil)
-  (setq lsp-modeline-diagnostics-enable nil)
-  (defun lsp-toggle-mouse-docs ()
-   (interactive)
-   (if lsp-ui-doc-show-with-mouse
-     (setq lsp-ui-doc-show-with-mouse nil)
-     (setq lsp-ui-doc-show-with-mouse t)
-   )
-  )
-)
-#+end_src
-
-#+begin_src elisp
-(after! lsp-ui
-  (message "after lsp-ui triggered")
-  (setq lsp-ui-show-with-mouse t)
-)
-#+end_src
+** lsp-haskell
 
 #+begin_src elisp
 (use-package! lsp-haskell
@@ -1098,40 +1127,16 @@ FIXME: Not sure why this is required
  )
 #+end_src
 
+** ob-haskell-ng
+
+[[https://github.com/tonyday567/ob-haskell-ng][tonyday567/ob-haskell-ng]]
+
 #+begin_src elisp
-(use-package! lsp-treemacs
+(use-package! ob-haskell-ng
+  :load-path "~/.config/doom/repos/ob-haskell-ng"
   :config
-  (lsp-treemacs-sync-mode 1)
-  (setq lsp-treemacs-errors-position-params '((side . left)))
+  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
 )
-#+end_src
-
-** treesit
-
-#+begin_src elisp
-
-(after! treesit
-(defun ts-inspect ()
-  (interactive)
-  (when-let* ((nap (treesit-node-at (point))))
-    (message "%S - %S" nap (treesit-node-type nap))))
-
-(defun ts-query-root (query)
-  (interactive "sQuery: ")
-  (let ((ss0 (treesit-query-capture (treesit-buffer-root-node) query)))
-    (message "%S" ss0))))
-
-#+end_src
-
-** flymake
-
-#+begin_src elisp
-(after! haskell-ng-mode
-  (map! :localleader
-        :map haskell-ng-mode-map
-        "n" #'flymake-goto-next-error
-        "p" #'flymake-goto-prev-error
-        "e" #'consult-flymake))
 #+end_src
 
 ** haskell-lite
@@ -1140,7 +1145,7 @@ FIXME: Not sure why this is required
 
 #+begin_src elisp
 (use-package! haskell-lite
-  ;; :load-path "~/.config/doom/repos/haskell-lite"
+  :load-path "~/.config/doom/repos/haskell-lite"
 )
 #+end_src
 
@@ -1158,6 +1163,7 @@ FIXME: Not sure why this is required
          :nvm "r" #'haskell-lite-repl-restart
          :nvm "b" #'haskell-lite-repl-show)))
   #+end_src
+
 *** haskell-ng-repl bindings
 
   #+begin_src elisp
@@ -1172,11 +1178,11 @@ FIXME: Not sure why this is required
          :nvm "r" #'haskell-lite-repl-restart
          :nvm "b" #'haskell-lite-repl-show)))
   #+end_src
-** Tidal
+** Tidal (off)
 
 [[https://github.com/tidalcycles/Tidal][tidalcycles/Tidal: Pattern language]]
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package! tidal
     :init
     (progn
@@ -1187,21 +1193,3 @@ FIXME: Not sure why this is required
 #+end_src
 
 
-* haskell-ts-mode (off)
-
-[[https://codeberg.org/pranshu/haskell-ts-mode#headline-5][pranshu/haskell-ts-mode - Codeberg.org]]
-
-
-#+begin_src elisp :tangle no
-(after! treesit
-(use-package! haskell-ts-mode
-  :init
-  (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
-  (add-to-list 'major-mode-remap-alist '(haskell-mode . haskell-ts-mode))
-  (defalias 'haskell-mode #'haskell-ts-mode)
-))
-#+end_src
-
-#+begin_src elisp :tangle no
-(require 'haskell-ts-mode)
-#+end_src

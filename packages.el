@@ -66,28 +66,28 @@
 (package! lsp-treemacs)
 (package! ormolu)
 
-(package! tidal
-  :recipe (:host github :repo "tonyday567/Tidal" :branch "haskell-ng"))
+(package! lsp-haskell
+  :recipe (:host github
+           :repo "magthe/lsp-haskell"
+  :branch "master"))
 
 (package! haskell-ng-mode
   :recipe (:host gitlab
            :repo "tonyday567/haskell-ng-mode"
            :branch "lite-fixes"))
 
-(package! lsp-haskell
-  :recipe (:host github
-           :repo "magthe/lsp-haskell"
- :branch "master"))
+;; ;(package! ob-haskell-ng
+;; ;  :recipe (:host github
+;; ;           :repo "tonyday567/ob-haskell-ng"
+;; ;           :branch "main"))
 
-(package! ob-haskell-ng
-  :recipe (:host github
-           :repo "tonyday567/ob-haskell-ng"
-           :branch "main"))
+;; (package! haskell-lite
+;;   :recipe (:host github
+;;            :repo "tonyday567/haskell-lite"
+;;  :branch "main"))
 
-(package! haskell-lite
-  :recipe (:host github
-           :repo "tonyday567/haskell-lite"
- :branch "main"))
+;; (package! tidal
+;;  :recipe (:host github :repo "tonyday567/Tidal" :branch "haskell-ng"))
 
 ;(package! haskell-lsp
 ;  :recipe (:host github
@@ -97,11 +97,6 @@
 ;;(package! haskell-ng-mode
 ;;  :recipe (:local-repo "~/.config/doom/repos/haskell-ng-mode"
 ;;  :build (:not compile)))
-
-;(package! haskell-ts-mode
-;  :recipe (:host codeberg
-;           :repo "pranshu/haskell-ts-mode"
-;           :branch "main"))
 
 ; https://github.com/doomemacs/doomemacs/issues/8089
 (package! compat :pin "9a234d0")
