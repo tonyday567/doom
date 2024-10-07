@@ -13,16 +13,16 @@ My personal doom emacs configuration.
 * Non-standard binds
 ** global map
 
-| key     | command                     |
-|---------+-----------------------------|
-| ~v~ ~V~     | expand/contract region      |
+| key       | command                     |
+|-----------+-----------------------------|
+| ~v~ ~V~   | expand/contract region      |
 | ~SPC s o~ | consult-outline             |
 | ~SPC s f~ | consult-find                |
 | ~SPC s y~ | consult-yank-from-kill-ring |
-| SPC b o | consult-buffer-other-window |
-| SPC r l | consult-register-load       |
-| SPC r s | consult-register-store      |
-| SPC r r | consult-register            |
+| SPC b o   | consult-buffer-other-window |
+| SPC r l   | consult-register-load       |
+| SPC r s   | consult-register-store      |
+| SPC r r   | consult-register            |
 | ~M-SPC~   | cycle-spacing               |
 | ~SPC t m~ | style/max-frame             |
 | ~SPC t d~ | style/default-frame         |
@@ -31,9 +31,9 @@ My personal doom emacs configuration.
 | ~C-r~     | isearch-backwards           |
 | ~M-s-s~   | isearch-forward-regexp      |
 | ~M-j~     | avy-isearch                 |
-| M-n     | flycheck-next-error         |
-| M-p     | flycheck-previous-error     |
-|         |                             |
+| M-n       | flycheck-next-error         |
+| M-p       | flycheck-previous-error     |
+|           |                             |
 
 ** org map
 
@@ -173,6 +173,19 @@ As per default doom config.el.
 
 #+end_src
 
+* Themes
+
+** ef-themes
+
+#+begin_src elisp
+(use-package! ef-themes
+  :config
+  (setq ef-themes-to-toggle '(ef-bio ef-dark))
+  (map! :leader "te" #'ef-themes-toggle)
+  (mapc #'disable-theme custom-enabled-themes)
+  (ef-themes-select 'ef-bio))
+#+end_src
+
 * Doom
 
 Global and standard doom library tweaks.
@@ -270,7 +283,7 @@ Global and standard doom library tweaks.
 
 ** evil
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (map!
  (:map 'override
    :v "v" #'er/expand-region
@@ -281,17 +294,14 @@ Global and standard doom library tweaks.
    :m "k" #'evil-previous-visual-line))
 #+end_src
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (setq evil-kill-on-visual-paste nil
-      evil-want-C-u-scroll nil
-      evil-want-integration t
-      evil-want-keybinding nil
       evil-move-cursor-back nil
       evil-move-beyond-eol t
       evil-highlight-closing-paren-at-point-states nil)
 #+end_src
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (defun evil-forward-after-end (thing &optional count)
   "Move forward to end of THING.
 The motion is repeated COUNT times."
@@ -331,9 +341,7 @@ If BIGWORD is non-nil, move by WORDS."
 
 (map!
  :m "e" 'evil-forward-after-word-end
- :m "E" 'evil-forward-after-WORD-end
- :n "C-r"  nil
- :n "U" 'evil-undo)
+ :m "E" 'evil-forward-after-WORD-end)
 #+end_src
 
 ** default package tweaks
@@ -355,13 +363,13 @@ Turn off spell-fu by default. If you remove the hook after! spell-fu, it's too l
 
 *** vertico
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (setq vertico-sort-function #'vertico-sort-history-alpha)
 #+end_src
 
 *** isearch
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (define-key isearch-mode-map (kbd "M-j") 'avy-isearch)
 
 (defun isearch-forward-other-window (prefix)
@@ -397,15 +405,14 @@ Turn off spell-fu by default. If you remove the hook after! spell-fu, it's too l
 
 Flipping gss and gs/
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (map!
  (:map 'override
    :nvm "gss" #'evil-avy-goto-char-timer
    :nvm "gs/" #'evil-avy-goto-char-2))
 #+end_src
 
-
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! avy
  :config
  (setq avy-all-windows t)
@@ -425,14 +432,14 @@ Flipping gss and gs/
 
 *** ace-window
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (map!
    :leader "w w" #'ace-window)
 #+end_src
 
 *** consult
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (map!
    :leader "s f" #'consult-find
    :leader :desc "consult-outline" "s o" #'consult-outline
@@ -446,7 +453,7 @@ Flipping gss and gs/
 
 *** orderless
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package orderless
   :init
   (setq completion-styles '(orderless)
@@ -454,7 +461,7 @@ Flipping gss and gs/
         completion-category-overrides '((file (styles . (partial-completion))))))
 #+end_src
 
-*** erc
+*** erc (off)
 
 message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
@@ -470,7 +477,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 *** latex
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! latex
  (setq org-latex-packages-alist '(("" "tikz-cd" t) ("" "tikz" t)))
 )
@@ -478,7 +485,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 *** flycheck
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! flycheck
   (map!
     :n "M-n" 'flycheck-next-error
@@ -487,7 +494,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 *** company
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! company
   :config
   (setq +company-backend-alist (assq-delete-all 'prog-mode +company-backend-alist))
@@ -503,7 +510,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
     (set-company-backend! 'haskell-ng-mode '(company-capf)))
 #+end_src
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (defun toggle-company-ispell ()
   "Toggle company ispell backend."
   (interactive)
@@ -516,7 +523,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
     (message "company-ispell enabled!"))))
 #+end_src
 
-*** eglot
+*** eglot (off)
 
 #+begin_src elisp :tangle no
 (after! eglot
@@ -551,7 +558,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 * Org
 ** general tweaks
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! org
   :config
   (setq
@@ -580,7 +587,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 ** org-agenda
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! org-agenda
   :config
   (setq org-agenda-span 'week
@@ -623,7 +630,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 ** org-capture
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! org
   (setq
    org-capture-templates
@@ -640,7 +647,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 ** Turn company mode off
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! org
   :config
   (progn
@@ -650,7 +657,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 ** yank-into-block
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! org
   :config
   (defun display-ansi-colors ()
@@ -736,7 +743,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 [[https://github.com/unhammer/org-random-todo][unhammer/org-random-todo]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! org
   (use-package! org-random-todo
     :defer-incrementally t
@@ -752,7 +759,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
         (:nvm "j" #'org-random-todo-goto-new)))
 #+end_src
 
-** hugo
+** hugo (off)
 
 docs: [[https://ox-hugo.scripter.co/][ox-hugo - Org to Hugo exporter]]
 
@@ -1069,7 +1076,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/Malabarba/beacon][Malabarba/beacon]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! beacon
   :config (beacon-mode 1))
 #+end_src
@@ -1078,14 +1085,14 @@ FIXME: Not sure why this is required
 
 [[https://github.com/casouri/iscroll][casouri/iscroll]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! iscroll
   :config (iscroll-mode 1))
 #+end_src
 
 ** diminish
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! diminish)
 #+end_src
 
@@ -1093,7 +1100,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/ymarco/auto-activating-snippets][ymarco/auto-activating-snippets]]
 
-#+begin_src elisp :tangle no
+#+begin_src
 (use-package! aas
     :hook (org-mode . aas-activate-for-major-mode)
     :config
@@ -1108,7 +1115,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/ppareit/graphviz-dot-mode][ppareit/graphviz-dot-mode]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package graphviz-dot-mode
   :config
   (setq graphviz-dot-indent-width 4))
@@ -1117,7 +1124,7 @@ FIXME: Not sure why this is required
 
 ** uiua
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! uiua-ts-mode
   :mode "\\.ua\\'")
 #+end_src
@@ -1127,7 +1134,7 @@ FIXME: Not sure why this is required
 
 [[https://protesilaos.com/codelog/2023-06-03-emacs-spacious-padding/][Emacs: my new ‘spacious-padding’ package | Protesilaos Stavrou]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! spacious-padding
   :config
     (spacious-padding-mode t)
@@ -1138,7 +1145,7 @@ FIXME: Not sure why this is required
 
 [[https://github.com/tumashu/vertico-posframe][tumashu/vertico-posframe]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! vertico-posframe
   :config
     (vertico-posframe-mode t)
@@ -1179,13 +1186,29 @@ FIXME: Not sure why this is required
     (dashboard-setup-startup-hook))
 #+end_src
 
-** ef-themes
-
 #+begin_src elisp :tangle no
-(use-package! ef-themes
+(use-package! dashboard
   :config
-  (setq ef-themes-to-toggle '(ef-bio ef-dark))
-  (mapc #'disable-theme custom-enabled-themes)
-  (ef-themes-select 'ef-bio))
+    (setq dashboard-items
+      '((recents  . 5)
+        (agenda . 10)
+        (projects . 5)
+        (bookmarks . 5)))
+    (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
+    ;(setq dashboard-display-icons-p t)
+    ;(setq dashboard-icon-type 'nerd-icons)
+    (setq dashboard-set-navigator t)
+    (setq dashboard-startup-banner nil)
+    (setq dashboard-set-footer nil)
+    (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
+    (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+    (setq dashboard-agenda-prefix-format "%s%-12:c")
+    ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
+    (setq dashboard-item-names '(("Recent Files:" . "Recent:")
+                                 ("Agenda for the coming week:" . "Next:")))
+    (setq dashboard-match-agenda-entry "+TODO=\"Next\"|SCHEDULED<\"<now>\"")
+    ;(setq dashboard-set-heading-icons t)
+    ;(setq dashboard-set-file-icons t)
+    (map! :leader "ox" #'dashboard-open)
+    (dashboard-setup-startup-hook))
 #+end_src
-
