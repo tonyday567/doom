@@ -62,14 +62,15 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-(setq evil-split-window-below t
-      evil-vsplit-window-right t
-      confirm-kill-emacs nil
-      confirm-kill-processes nil
-      shift-select-mode t
-      window-combination-resize t
-      case-fold-search t
-      auto-save-default t)
+(use-package! ef-themes
+  :config
+  (setq ef-themes-to-toggle '(ef-bio ef-dark))
+  (map! :leader "te" #'ef-themes-toggle)
+  (mapc #'disable-theme custom-enabled-themes)
+  (ef-themes-select 'ef-bio))
+
+(setq confirm-kill-emacs nil
+      confirm-kill-processes nil)
 
 ;; setq-default sets variables that are usually local to buffers
 (setq-default truncate-lines nil
@@ -156,9 +157,6 @@
    :m "k" #'evil-previous-visual-line))
 
 (setq evil-kill-on-visual-paste nil
-      evil-want-C-u-scroll nil
-      evil-want-integration t
-      evil-want-keybinding nil
       evil-move-cursor-back nil
       evil-move-beyond-eol t
       evil-highlight-closing-paren-at-point-states nil)
@@ -202,9 +200,10 @@ If BIGWORD is non-nil, move by WORDS."
 
 (map!
  :m "e" 'evil-forward-after-word-end
- :m "E" 'evil-forward-after-WORD-end
- :n "C-r"  nil
- :n "U" 'evil-undo)
+ :m "E" 'evil-forward-after-WORD-end)
+
+(remove-hook 'text-mode-hook #'spell-fu-mode)
+;;(setq spell-fu-ignore-modes (list 'org-mode))
 
 (setq vertico-sort-function #'vertico-sort-history-alpha)
 
@@ -270,22 +269,11 @@ If BIGWORD is non-nil, move by WORDS."
    :leader "r r" #'consult-register
    [remap jump-to-register] #'consult-register-load)
 
-(remove-hook 'text-mode-hook #'spell-fu-mode)
-;;(setq spell-fu-ignore-modes (list 'org-mode))
-
 (use-package orderless
   :init
   (setq completion-styles '(orderless)
         completion-category-defaults nil
         completion-category-overrides '((file (styles . (partial-completion))))))
-
-(setq erc-autojoin-channels-alist '(("libera.chat" "#haskell" "#emacs")))
-(setq erc-hide-list '("JOIN" "PART" "QUIT"))
-(setq erc-hide-timestamps t)
-(setq erc-autojoin-timing 'ident)
-;; (erc-prompt-for-nickserv-password nil)
-(setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
-                              "324" "329" "332" "333" "353" "477"))
 
 (after! latex
  (setq org-latex-packages-alist '(("" "tikz-cd" t) ("" "tikz" t)))
@@ -302,6 +290,10 @@ If BIGWORD is non-nil, move by WORDS."
   (add-to-list '+company-backend-alist '(prog-mode (company-dabbrev-code :separate company-capf)))
   (map! :leader "ti" #'toggle-company-ispell))
 
+(after! haskell-ng-mode
+    (set-company-backend! 'haskell-ng-mode nil)
+    (set-company-backend! 'haskell-ng-mode '(company-capf)))
+
 (defun toggle-company-ispell ()
   "Toggle company ispell backend."
   (interactive)
@@ -313,32 +305,30 @@ If BIGWORD is non-nil, move by WORDS."
     (push 'company-ispell company-backends)
     (message "company-ispell enabled!"))))
 
-(after! eglot
-  (setq-default eglot-workspace-configuration
-                '((haskell
-                   (plugin
-                    (stan
-                     (globalOn . :json-false))))))  ;; disable stan
-  (setq eglot-autoshutdown t)  ;; shutdown language server after closing last file
-  (setq eglot-confirm-server-initiated-edits nil)  ;; allow edits without confirmation
-  (push  '(haskell-ng-mode . ("haskell-language-server-wrapper" "--lsp")) eglot-server-programs))
-
-(defun eldoc-documentation-tweak ()
-    (interactive)
-    (setq-local eldoc-echo-area-prefer-doc-buffer t
-                eldoc-echo-area-use-multiline-p nil
-                eldoc-documentation-strategy 'eldoc-documentation-enthusiast)
-    (setq-local eldoc-documentation-functions
-      '(flymake-eldoc-function
-        eglot-signature-eldoc-function
-        eglot-hover-eldoc-function)))
-
-(defun eldoc-documentation-lsp-tweak ()
-    (interactive)
-    (setq-local eldoc-echo-area-prefer-doc-buffer t
-                eldoc-echo-area-use-multiline-p nil
-                eldoc-documentation-strategy 'eldoc-documentation-enthusiast)
-    (setq-local eldoc-documentation-functions nil))
+(use-package! dashboard
+  :config
+    (setq dashboard-items
+      '((recents  . 5)
+        (agenda . 10)
+        (projects . 5)
+        (bookmarks . 5)))
+    (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
+    ;(setq dashboard-display-icons-p t)
+    ;(setq dashboard-icon-type 'nerd-icons)
+    (setq dashboard-set-navigator t)
+    (setq dashboard-startup-banner 'logo)
+    (setq dashboard-set-footer nil)
+    (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
+    (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+    (setq dashboard-agenda-prefix-format "%s%-12:c")
+    ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
+    (setq dashboard-item-names '(("Recent Files:" . "Recent:")
+                                 ("Agenda for the coming week:" . "Next:")))
+    (setq dashboard-match-agenda-entry "+TODO=\"Next\"|SCHEDULED<\"<now>\"")
+    ;(setq dashboard-set-heading-icons t)
+    ;(setq dashboard-set-file-icons t)
+    (map! :leader "ox" #'dashboard-open)
+    (dashboard-setup-startup-hook))
 
 (after! org
   :config
@@ -517,21 +507,80 @@ If BIGWORD is non-nil, move by WORDS."
         :localleader
         (:nvm "j" #'org-random-todo-goto-new)))
 
-(after! org
+(use-package! beacon
+  :config (beacon-mode 1))
+
+(use-package! iscroll
+  :config (iscroll-mode 1))
+
+(use-package! diminish)
+
+(use-package graphviz-dot-mode
   :config
-  (use-package backtrace)
-  (setq org-hugo-base-dir "~/site"
-        org-hugo-auto-set-lastmod t
-        org-hugo-use-code-for-kbd t
-        org-hugo-date-format "%Y-%m-%d")
-    (map! :map org-mode-map
-        :localleader
-        (:nvm "lp" #'org-hugo-export-wim-to-md)))
+  (setq graphviz-dot-indent-width 4))
+  (setq graphviz-dot-preview-extension "svg")
+
+(use-package! uiua-ts-mode
+  :mode "\\.ua\\'")
+
+(use-package! spacious-padding
+  :config
+    (spacious-padding-mode t)
+)
+
+(use-package! vertico-posframe
+  :config
+    (vertico-posframe-mode t)
+    (map! :leader "tp" #'vertico-posframe-cleanup)
+)
+
+(use-package! combobulate)
+
+(after! lsp-mode
+  (setq lsp-auto-execute-action nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (defun lsp-toggle-mouse-docs ()
+   (interactive)
+   (if lsp-ui-doc-show-with-mouse
+     (setq lsp-ui-doc-show-with-mouse nil)
+     (setq lsp-ui-doc-show-with-mouse t)
+   )
+  )
+)
+
+(after! lsp-ui
+  (message "after lsp-ui triggered")
+  (setq lsp-ui-show-with-mouse t)
+)
+
+(use-package! lsp-treemacs
+  :config
+  (lsp-treemacs-sync-mode 1)
+  (setq lsp-treemacs-errors-position-params '((side . left)))
+)
+
+(after! treesit
+(defun ts-inspect ()
+  (interactive)
+  (when-let* ((nap (treesit-node-at (point))))
+    (message "%S - %S" nap (treesit-node-type nap))))
+
+(defun ts-query-root (query)
+  (interactive "sQuery: ")
+  (let ((ss0 (treesit-query-capture (treesit-buffer-root-node) query)))
+    (message "%S" ss0))))
+
+(after! haskell-ng-mode
+  (map! :localleader
+        :map haskell-ng-mode-map
+        "n" #'flymake-goto-next-error
+        "p" #'flymake-goto-prev-error
+        "e" #'consult-flymake))
 
 (after! treesit
 (use-package! haskell-ng-mode
   :diminish haskell-ng-mode
-  :load-path "~/.config/doom/repos/haskell-ng-mode"
+  ;; :load-path "~/.config/doom/repos/haskell-ng-mode"
   :init
   (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
   ; (add-to-list 'treesit-language-source-alist '(cabal ("https://gitlab.com/magus/tree-sitter-cabal.git" "main" "src" "gcc-13" "c++-13")))
@@ -604,31 +653,6 @@ If BIGWORD is non-nil, move by WORDS."
 
 (require 'haskell-ng-mode)
 
-(use-package! ob-haskell-ng
-  :load-path "~/.config/doom/repos/ob-haskell-ng"
-  :config
-  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
-)
-
-(use-package! combobulate)
-
-(after! lsp-mode
-  (setq lsp-auto-execute-action nil)
-  (setq lsp-modeline-diagnostics-enable nil)
-  (defun lsp-toggle-mouse-docs ()
-   (interactive)
-   (if lsp-ui-doc-show-with-mouse
-     (setq lsp-ui-doc-show-with-mouse nil)
-     (setq lsp-ui-doc-show-with-mouse t)
-   )
-  )
-)
-
-(after! lsp-ui
-  (message "after lsp-ui triggered")
-  (setq lsp-ui-show-with-mouse t)
-)
-
 (use-package! lsp-haskell
   :config
   (setq
@@ -652,38 +676,21 @@ If BIGWORD is non-nil, move by WORDS."
   )
  )
 
-(use-package! lsp-treemacs
+(use-package! ob-haskell-ng
+  ;; :load-path "~/.config/doom/repos/ob-haskell-ng"
   :config
-  (lsp-treemacs-sync-mode 1)
-  (setq lsp-treemacs-errors-position-params '((side . left)))
+  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
 )
 
-(after! treesit
-(defun ts-inspect ()
-  (interactive)
-  (when-let* ((nap (treesit-node-at (point))))
-    (message "%S - %S" nap (treesit-node-type nap))))
-
-(defun ts-query-root (query)
-  (interactive "sQuery: ")
-  (let ((ss0 (treesit-query-capture (treesit-buffer-root-node) query)))
-    (message "%S" ss0))))
-
-(after! haskell-ng-mode
-  (map! :localleader
-        :map haskell-ng-mode-map
-        "n" #'flymake-goto-next-error
-        "p" #'flymake-goto-prev-error
-        "e" #'consult-flymake))
-
 (use-package! haskell-lite
-  :load-path "~/.config/doom/repos/haskell-lite"
+  ; :load-path "~/.config/doom/repos/haskell-lite"
 )
 
 (after! org
 (map! :localleader
       :map org-mode-map
       (:prefix ("m" . "haskell-ng-repl")
+       :nvm "m" #'haskell-lite-repl-overlay
        :nvm "s" #'haskell-ng-repl-run
        :nvm "p" #'haskell-lite-prompt
        :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
@@ -695,6 +702,7 @@ If BIGWORD is non-nil, move by WORDS."
 (map! :localleader
       :map haskell-ng-mode-map
       (:prefix ("m" . "haskell-ng-repl")
+       :nvm "m" #'haskell-lite-repl-overlay
        :nvm "s" #'haskell-ng-repl-run
        :nvm "p" #'haskell-lite-prompt
        :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
@@ -709,70 +717,3 @@ If BIGWORD is non-nil, move by WORDS."
       (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
       (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
       ))
-
-(use-package! beacon
-  :config (beacon-mode 1))
-
-(use-package! iscroll
-  :config (iscroll-mode 1))
-
-(use-package! diminish)
-
-(use-package! aas
-    :hook (org-mode . aas-activate-for-major-mode)
-    :config
-        (aas-set-snippets 'org-mode
-            ;; expand unconditionally
-            "-]" "- [ ] "
-            ";ig" #'insert-register
-            ";ro" ":results output"))
-
-(use-package graphviz-dot-mode
-  :config
-  (setq graphviz-dot-indent-width 4))
-  (setq graphviz-dot-preview-extension "svg")
-
-(use-package! uiua-ts-mode
-  :mode "\\.ua\\'")
-
-(use-package! spacious-padding
-  :config
-    (spacious-padding-mode t)
-)
-
-(use-package! vertico-posframe
-  :config
-    (vertico-posframe-mode t)
-    (map! :leader "tp" #'vertico-posframe-cleanup)
-)
-
-(use-package! dashboard
-  :config
-    (setq dashboard-items
-      '((recents  . 5)
-        (agenda . 10)
-        (projects . 5)
-        (bookmarks . 5)))
-    (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
-    ;(setq dashboard-display-icons-p t)
-    ;(setq dashboard-icon-type 'nerd-icons)
-    (setq dashboard-set-navigator t)
-    (setq dashboard-startup-banner nil)
-    (setq dashboard-set-footer nil)
-    (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
-    (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
-    (setq dashboard-agenda-prefix-format "%s%-12:c")
-    ;(setq dashboard-agenda-sort-strategy '(todo-state-up))
-    (setq dashboard-item-names '(("Recent Files:" . "Recent:")
-                                 ("Agenda for the coming week:" . "Next:")))
-    (setq dashboard-match-agenda-entry "+TODO=\"Next\"|SCHEDULED<\"<now>\"")
-    ;(setq dashboard-set-heading-icons t)
-    ;(setq dashboard-set-file-icons t)
-    (map! :leader "ox" #'dashboard-open)
-    (dashboard-setup-startup-hook))
-
-(use-package! ef-themes
-  :config
-  (setq ef-themes-to-toggle '(ef-bio ef-dark))
-  (mapc #'disable-theme custom-enabled-themes)
-  (ef-themes-select 'ef-bio))
