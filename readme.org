@@ -504,7 +504,7 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
 
 #+RESULTS:
 
-#+begin_src elisp :tangle no :tangle no
+#+begin_src elisp
 (after! haskell-ng-mode
     (set-company-backend! 'haskell-ng-mode nil)
     (set-company-backend! 'haskell-ng-mode '(company-capf)))
@@ -916,7 +916,6 @@ A ToDo in the header makes the post a draft.
 #+end_src
 
 * treesitter + lsp
-
 ** combobulate
 
 [[https://github.com/mickeynp/combobulate][mickeynp/combobulate]]
@@ -974,9 +973,9 @@ A ToDo in the header makes the post a draft.
 
 #+end_src
 
-** flymake (off)
+** flymake
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (after! haskell-ng-mode
   (map! :localleader
         :map haskell-ng-mode-map
@@ -984,7 +983,6 @@ A ToDo in the header makes the post a draft.
         "p" #'flymake-goto-prev-error
         "e" #'consult-flymake))
 #+end_src
-
 
 * haskell-ng
 
@@ -1133,7 +1131,7 @@ FIXME: Not sure why this is required
 
 #+begin_src elisp
 (use-package! ob-haskell-ng
-  :load-path "~/.config/doom/repos/ob-haskell-ng"
+  ;; :load-path "~/.config/doom/repos/ob-haskell-ng"
   :config
   (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
 )
@@ -1145,17 +1143,18 @@ FIXME: Not sure why this is required
 
 #+begin_src elisp
 (use-package! haskell-lite
-  :load-path "~/.config/doom/repos/haskell-lite"
+  ; :load-path "~/.config/doom/repos/haskell-lite"
 )
 #+end_src
 
-*** org-babel bindings
+** org-babel bindings
 
   #+begin_src elisp
   (after! org
   (map! :localleader
         :map org-mode-map
         (:prefix ("m" . "haskell-ng-repl")
+         :nvm "m" #'haskell-lite-repl-overlay
          :nvm "s" #'haskell-ng-repl-run
          :nvm "p" #'haskell-lite-prompt
          :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
@@ -1164,13 +1163,14 @@ FIXME: Not sure why this is required
          :nvm "b" #'haskell-lite-repl-show)))
   #+end_src
 
-*** haskell-ng-repl bindings
+** haskell-ng-repl bindings
 
   #+begin_src elisp
   (after! org
   (map! :localleader
         :map haskell-ng-mode-map
         (:prefix ("m" . "haskell-ng-repl")
+         :nvm "m" #'haskell-lite-repl-overlay
          :nvm "s" #'haskell-ng-repl-run
          :nvm "p" #'haskell-lite-prompt
          :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
@@ -1178,11 +1178,11 @@ FIXME: Not sure why this is required
          :nvm "r" #'haskell-lite-repl-restart
          :nvm "b" #'haskell-lite-repl-show)))
   #+end_src
-** Tidal (off)
+** Tidal
 
 [[https://github.com/tidalcycles/Tidal][tidalcycles/Tidal: Pattern language]]
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 (use-package! tidal
     :init
     (progn

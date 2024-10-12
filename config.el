@@ -290,6 +290,10 @@ If BIGWORD is non-nil, move by WORDS."
   (add-to-list '+company-backend-alist '(prog-mode (company-dabbrev-code :separate company-capf)))
   (map! :leader "ti" #'toggle-company-ispell))
 
+(after! haskell-ng-mode
+    (set-company-backend! 'haskell-ng-mode nil)
+    (set-company-backend! 'haskell-ng-mode '(company-capf)))
+
 (defun toggle-company-ispell ()
   "Toggle company ispell backend."
   (interactive)
@@ -566,6 +570,13 @@ If BIGWORD is non-nil, move by WORDS."
   (let ((ss0 (treesit-query-capture (treesit-buffer-root-node) query)))
     (message "%S" ss0))))
 
+(after! haskell-ng-mode
+  (map! :localleader
+        :map haskell-ng-mode-map
+        "n" #'flymake-goto-next-error
+        "p" #'flymake-goto-prev-error
+        "e" #'consult-flymake))
+
 (after! treesit
 (use-package! haskell-ng-mode
   :diminish haskell-ng-mode
@@ -666,19 +677,20 @@ If BIGWORD is non-nil, move by WORDS."
  )
 
 (use-package! ob-haskell-ng
-  :load-path "~/.config/doom/repos/ob-haskell-ng"
+  ;; :load-path "~/.config/doom/repos/ob-haskell-ng"
   :config
   (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
 )
 
 (use-package! haskell-lite
-  :load-path "~/.config/doom/repos/haskell-lite"
+  ; :load-path "~/.config/doom/repos/haskell-lite"
 )
 
 (after! org
 (map! :localleader
       :map org-mode-map
       (:prefix ("m" . "haskell-ng-repl")
+       :nvm "m" #'haskell-lite-repl-overlay
        :nvm "s" #'haskell-ng-repl-run
        :nvm "p" #'haskell-lite-prompt
        :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
@@ -690,9 +702,18 @@ If BIGWORD is non-nil, move by WORDS."
 (map! :localleader
       :map haskell-ng-mode-map
       (:prefix ("m" . "haskell-ng-repl")
+       :nvm "m" #'haskell-lite-repl-overlay
        :nvm "s" #'haskell-ng-repl-run
        :nvm "p" #'haskell-lite-prompt
        :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
        :nvm "q" #'haskell-lite-repl-quit
        :nvm "r" #'haskell-lite-repl-restart
        :nvm "b" #'haskell-lite-repl-show)))
+
+(use-package! tidal
+    :init
+    (progn
+      (setq tidal-interpreter "ghci")
+      (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
+      (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
+      ))

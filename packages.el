@@ -76,18 +76,18 @@
            :repo "tonyday567/haskell-ng-mode"
            :branch "lite-fixes"))
 
-;; ;(package! ob-haskell-ng
-;; ;  :recipe (:host github
-;; ;           :repo "tonyday567/ob-haskell-ng"
-;; ;           :branch "main"))
+(package! ob-haskell-ng
+  :recipe (:host github
+           :repo "tonyday567/ob-haskell-ng"
+           :branch "main"))
 
-;; (package! haskell-lite
-;;   :recipe (:host github
-;;            :repo "tonyday567/haskell-lite"
-;;  :branch "main"))
+(package! haskell-lite
+  :recipe (:host github
+           :repo "tonyday567/haskell-lite"
+           :branch "main"))
 
-;; (package! tidal
-;;  :recipe (:host github :repo "tonyday567/Tidal" :branch "haskell-ng"))
+(package! tidal
+  :recipe (:host github :repo "tonyday567/Tidal" :branch "haskell-ng"))
 
 ;(package! haskell-lsp
 ;  :recipe (:host github
