@@ -612,7 +612,9 @@ message type codes: https://datatracker.ietf.org/doc/html/rfc2812
    org-pretty-entities t
    org-ellipsis "…"
    org-agenda-tags-column 0
-   org-agenda-block-separator ?─)
+   org-agenda-block-separator ?─
+   org-export-with-toc nil
+   org-export-use-babel nil)
    (remove-hook 'org-mode-hook 'flyspell-mode)
    (setq-default org-todo-keywords '((sequence "ToDo(t)" "Next(n)" "Blocked(b)" "|" "Done(d)")))
 )
