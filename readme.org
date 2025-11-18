@@ -1195,3 +1195,27 @@ FIXME: Not sure why this is required
 #+end_src
 
 
+=======
+#+begin_src elisp
+(use-package! smudge
+  :config
+  ;; (define-prefix-command 'smudge/leader 'smudge-command-map)
+  (map! :leader "os" #'smudge-command-map)
+  :custom
+  (smudge-oauth2-client-secret "97f19e70e6ee4c5999b618aab1ed5aa7")
+  (smudge-oauth2-client-id "6c28c466fc6447a1885c00ba397a6368")
+  ;; optional: enable transient map for frequent commands
+  (smudge-player-use-transient-map t))
+#+end_src
+
+* gptel
+
+
+* flyover
+
+#+begin_src elisp
+(use-package! flyover
+ :config
+ (setq flyover-checkers '(flycheck flymake))
+)
+#+end_src
