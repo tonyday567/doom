@@ -719,3 +719,18 @@ If BIGWORD is non-nil, move by WORDS."
       (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
       (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
       ))
+
+(use-package! smudge
+  :config
+  ;; (define-prefix-command 'smudge/leader 'smudge-command-map)
+  (map! :leader "os" #'smudge-command-map)
+  :custom
+  (smudge-oauth2-client-secret "97f19e70e6ee4c5999b618aab1ed5aa7")
+  (smudge-oauth2-client-id "6c28c466fc6447a1885c00ba397a6368")
+  ;; optional: enable transient map for frequent commands
+  (smudge-player-use-transient-map t))
+
+(use-package! flyover
+ :config
+ (setq flyover-checkers '(flycheck flymake))
+)
