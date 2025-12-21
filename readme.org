@@ -98,6 +98,31 @@ A useful technique is to do an advanced github search of these repos, together w
 
 [[https://gitlab.com/magus/mes][magus]]
 
+* Early Init
+:PROPERTIES:
+:header-args: :tangle no
+:END:
+
+Early initialization settings that must load before package initialization.
+
+Note: ~early-init.el~ in ~\~{}/.config/emacs/~ contains Doom's universal bootstrapper (158 lines) and must be managed separately from this literate config. Native compilation settings have been added to lines 4-10 of that file.
+
+** Native Compilation
+
+Native compilation configuration for emacs-plus@30. Native compilation is enabled by default in emacs-plus@30 with proper libgccjit 15.2.0 linking, providing JIT compilation of Elisp to native code for 20-40% performance improvements.
+
+Settings added to ~\~{}/.config/emacs/early-init.el~ (lines 4-10):
+
+#+begin_src elisp
+;; Native compilation configuration for emacs-plus@30
+;; Native compilation is enabled by default in emacs-plus@30 with proper libgccjit linking
+(when (featurep 'native-compile)
+  (setq native-comp-jit-compilation t
+        native-comp-enable-subr-trampolines t
+        native-comp-async-report-warnings-errors 'silent
+        native-comp-deferred-compilation t))
+#+end_src
+
 * Default
 
 As per default doom config.el.
