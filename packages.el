@@ -62,7 +62,7 @@
 (package! aas)
 (package! dashboard)
 
-(package! combobulate)
+;; (package! combobulate)  ; Disabled due to SSH submodule issue
 (package! lsp-treemacs)
 (package! ormolu)
 
@@ -93,6 +93,12 @@
 ;  :recipe (:host github
 ;           :repo "emacs-lsp/lsp-haskell"
 ;           :branch "master"))
+;
+
+(package! gptel
+  :recipe (:host github
+           :repo "karthink/gptel"
+           :branch "master"))
 
 ;;(package! haskell-ng-mode
 ;;  :recipe (:local-repo "~/.config/doom/repos/haskell-ng-mode"

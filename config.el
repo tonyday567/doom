@@ -67,7 +67,7 @@
   (setq ef-themes-to-toggle '(ef-bio ef-dark))
   (map! :leader "te" #'ef-themes-toggle)
   (mapc #'disable-theme custom-enabled-themes)
-  (ef-themes-select 'ef-bio))
+  (load-theme 'ef-bio))
 
 (setq confirm-kill-emacs nil
       confirm-kill-processes nil)
@@ -536,8 +536,6 @@ If BIGWORD is non-nil, move by WORDS."
     (map! :leader "tp" #'vertico-posframe-cleanup)
 )
 
-(use-package! combobulate)
-
 (after! lsp-mode
   (setq lsp-auto-execute-action nil)
   (setq lsp-modeline-diagnostics-enable nil)
@@ -577,7 +575,7 @@ If BIGWORD is non-nil, move by WORDS."
         :map haskell-ng-mode-map
         "n" #'flymake-goto-next-error
         "p" #'flymake-goto-prev-error
-        "e" #'consult-flymake))
+        "f" #'consult-flymake))
 
 (after! treesit
 (use-package! haskell-ng-mode
@@ -720,17 +718,4 @@ If BIGWORD is non-nil, move by WORDS."
       (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
       ))
 
-(use-package! smudge
-  :config
-  ;; (define-prefix-command 'smudge/leader 'smudge-command-map)
-  (map! :leader "os" #'smudge-command-map)
-  :custom
-  (smudge-oauth2-client-secret "97f19e70e6ee4c5999b618aab1ed5aa7")
-  (smudge-oauth2-client-id "6c28c466fc6447a1885c00ba397a6368")
-  ;; optional: enable transient map for frequent commands
-  (smudge-player-use-transient-map t))
-
-(use-package! flyover
- :config
- (setq flyover-checkers '(flycheck flymake))
-)
+(use-package! gptel)
