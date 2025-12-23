@@ -39,7 +39,7 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
+(setq org-directory "~/sisyphus/org/")
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -406,11 +406,11 @@ If BIGWORD is non-nil, move by WORDS."
    org-capture-templates
    (quote
     (("r" "refile" entry
-      (file "~/org/refile.org")
+      (file "~/sisyphus/org/refile.org")
       "* ToDo %?
 ")
      ("z" "bugz" entry
-      (file+headline "~/org/bugz.org" "bugz!")
+      (file+headline "~/sisyphus/org/bugz.org" "bugz!")
       "* ToDo %?
 %a")))))
 
