@@ -67,7 +67,7 @@
   (setq ef-themes-to-toggle '(ef-bio ef-dark))
   (map! :leader "te" #'ef-themes-toggle)
   (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'ef-bio))
+  (load-theme 'ef-bio t))
 
 (setq confirm-kill-emacs nil
       confirm-kill-processes nil)
@@ -201,6 +201,11 @@ If BIGWORD is non-nil, move by WORDS."
 (map!
  :m "e" 'evil-forward-after-word-end
  :m "E" 'evil-forward-after-WORD-end)
+
+(after! evil-escape
+  (setq evil-escape-key-sequence "jk")
+  (setq evil-escape-delay 0.2)
+  (evil-escape-mode 1))
 
 (remove-hook 'text-mode-hook #'spell-fu-mode)
 ;;(setq spell-fu-ignore-modes (list 'org-mode))
@@ -580,7 +585,7 @@ If BIGWORD is non-nil, move by WORDS."
 (after! treesit
 (use-package! haskell-ng-mode
   :diminish haskell-ng-mode
-  ;; :load-path "~/.config/doom/repos/haskell-ng-mode"
+  ;; :load-path "~/repos/haskell-ng-mode"
   :init
   (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
   ; (add-to-list 'treesit-language-source-alist '(cabal ("https://gitlab.com/magus/tree-sitter-cabal.git" "main" "src" "gcc-13" "c++-13")))
@@ -677,38 +682,38 @@ If BIGWORD is non-nil, move by WORDS."
  )
 
 (use-package! ob-haskell-ng
-  ;; :load-path "~/.config/doom/repos/ob-haskell-ng"
+  ;; :load-path "~/repos/ob-haskell-ng"
   :config
   (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
 )
 
 (use-package! haskell-lite
-  ; :load-path "~/.config/doom/repos/haskell-lite"
+  ; :load-path "~/repos/haskell-lite"
 )
 
-(after! org
-(map! :localleader
-      :map org-mode-map
-      (:prefix ("m" . "haskell-ng-repl")
-       :nvm "m" #'haskell-lite-repl-overlay
-       :nvm "s" #'haskell-ng-repl-run
-       :nvm "p" #'haskell-lite-prompt
-       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
-       :nvm "q" #'haskell-lite-repl-quit
-       :nvm "r" #'haskell-lite-repl-restart
-       :nvm "b" #'haskell-lite-repl-show)))
+  (after! org
+  (map! :localleader
+        :map org-mode-map
+        (:prefix ("m" . "haskell-ng-repl")
+         :nvm "m" #'haskell-lite-repl-overlay
+         :nvm "s" #'haskell-ng-repl-run
+         :nvm "p" #'haskell-lite-prompt
+         :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
+         :nvm "q" #'haskell-lite-repl-quit
+         :nvm "r" #'haskell-lite-repl-restart
+         :nvm "b" #'haskell-lite-repl-show)))
 
-(after! org
-(map! :localleader
-      :map haskell-ng-mode-map
-      (:prefix ("m" . "haskell-ng-repl")
-       :nvm "m" #'haskell-lite-repl-overlay
-       :nvm "s" #'haskell-ng-repl-run
-       :nvm "p" #'haskell-lite-prompt
-       :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
-       :nvm "q" #'haskell-lite-repl-quit
-       :nvm "r" #'haskell-lite-repl-restart
-       :nvm "b" #'haskell-lite-repl-show)))
+  (after! org
+  (map! :localleader
+        :map haskell-ng-mode-map
+        (:prefix ("m" . "haskell-ng-repl")
+         :nvm "m" #'haskell-lite-repl-overlay
+         :nvm "s" #'haskell-ng-repl-run
+         :nvm "p" #'haskell-lite-prompt
+         :desc "run n go" :nvm "g" (cmd! (haskell-ng-repl-run t))
+         :nvm "q" #'haskell-lite-repl-quit
+         :nvm "r" #'haskell-lite-repl-restart
+         :nvm "b" #'haskell-lite-repl-show)))
 
 (use-package! tidal
     :init
@@ -718,4 +723,13 @@ If BIGWORD is non-nil, move by WORDS."
       (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
       ))
 
-(use-package! gptel)
+(use-package! gptel
+  :config
+  (setq gptel-model 'claude-sonnet-4-5-20250929
+        gptel-backend (gptel-make-anthropic "Claude"
+                        :stream t
+                        :key #'gptel-api-key-from-auth-source))
+
+  ;; GPG/EPA configuration for .authinfo.gpg
+  (setq epa-pinentry-mode 'loopback)
+  (setq epg-gpg-program "/opt/homebrew/bin/gpg"))

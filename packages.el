@@ -101,7 +101,7 @@
            :branch "master"))
 
 ;;(package! haskell-ng-mode
-;;  :recipe (:local-repo "~/.config/doom/repos/haskell-ng-mode"
+;;  :recipe (:local-repo "~/repos/haskell-ng-mode"
 ;;  :build (:not compile)))
 
 ; https://github.com/doomemacs/doomemacs/issues/8089
