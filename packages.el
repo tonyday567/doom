@@ -100,9 +100,20 @@
            :repo "karthink/gptel"
            :branch "master"))
 
-;;(package! haskell-ng-mode
+;; (package! haskell-ng-mode
 ;;  :recipe (:local-repo "~/repos/haskell-ng-mode"
 ;;  :build (:not compile)))
 
 ; https://github.com/doomemacs/doomemacs/issues/8089
 (package! compat :pin "9a234d0")
+
+(package! exec-path-from-shell)
+
+;; pi-coding-agent: Emacs Lisp frontend for pi
+;; Elisp package from remote GitHub; Node CLI backend via npm (@mariozechner/pi-coding-agent)
+(package! pi-coding-agent
+  :recipe (:host github :repo "dnouri/pi-coding-agent"))
+
+;; Anvil — MCP server for Emacs
+(package! anvil
+  :recipe (:host github :repo "zawatton/anvil.el" :branch "v0.1.0"))

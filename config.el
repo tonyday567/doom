@@ -11,6 +11,14 @@
 (setq user-full-name "Tony Day"
       user-mail-address "tonyday567@gmail.com")
 
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-copy-envs '("ANTHROPIC_API_KEY" "ANTHROPIC_MODEL")))
+
+;; Disable VC backends (prevents interference during file operations/cleanup)
+(setq vc-handled-backends nil)
+
+
+
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
 ;;
@@ -40,6 +48,11 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
+(setq org-agenda-files
+      (list "~/inbox.org"
+            "~/self/inbox.org"
+            "~/mg/inbox.org"
+            "~/org/"))
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -272,6 +285,7 @@ If BIGWORD is non-nil, move by WORDS."
    :leader "r l" #'consult-register-load
    :leader "r s" #'consult-register-store
    :leader "r r" #'consult-register
+   :leader "o p" #'pi-coding-agent-resume-session
    [remap jump-to-register] #'consult-register-load)
 
 (use-package orderless
@@ -320,9 +334,7 @@ If BIGWORD is non-nil, move by WORDS."
     (setq dashboard-banner-logo-title "welcome, Sir, to Cyprus. -- Goats and Monkeys!")
     ;(setq dashboard-display-icons-p t)
     ;(setq dashboard-icon-type 'nerd-icons)
-    (setq dashboard-set-navigator t)
     (setq dashboard-startup-banner 'logo)
-    (setq dashboard-set-footer nil)
     (setq dashboard-item-shortcuts '((recents . "r") (bookmarks . "m") (projects . "p") (agenda . "a") (registers . "e")))
     (setq dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
     (setq dashboard-agenda-prefix-format "%s%-12:c")
@@ -405,28 +417,29 @@ If BIGWORD is non-nil, move by WORDS."
   (setq
    org-capture-templates
    (quote
-    (("r" "refile" entry
-      (file "~/sisyphus/org/refile.org")
+    (("m" "mg inbox" entry
+      (file "~/mg/inbox.org")
+      "* ToDo %?
+")
+     ("s" "self inbox" entry
+      (file "~/self/inbox.org")
+      "* ToDo %?
+")
+     ("r" "refile" entry
+      (file "~/org/refile.org")
       "* ToDo %?
 ")
      ("z" "bugz" entry
-      (file+headline "~/sisyphus/org/bugz.org" "bugz!")
+      (file+headline "~/org/bugz.org" "bugz!")
       "* ToDo %?
-%a")))))
-
-(after! org
-  :config
-  (progn
-    (set-company-backend! 'org-mode nil)
-    (set-company-backend! 'org-mode '(:separate company-yasnippet company-dabbrev))))
-
-(after! org
-  :config
+%a"))))
+  (set-company-backend! 'org-mode nil)
+  (set-company-backend! 'org-mode '(:separate company-yasnippet company-dabbrev))
   (defun display-ansi-colors ()
     (interactive)
     (let ((inhibit-read-only t))
       (ansi-color-apply-on-region (point-min) (point-max))))
-   (add-hook 'org-babel-after-execute-hook #'display-ansi-colors)
+  (add-hook 'org-babel-after-execute-hook #'display-ansi-colors)
 
    (map! :map org-mode-map
          :localleader
@@ -731,5 +744,45 @@ If BIGWORD is non-nil, move by WORDS."
                         :key #'gptel-api-key-from-auth-source))
 
   ;; GPG/EPA configuration for .authinfo.gpg
-  (setq epa-pinentry-mode 'loopback)
+  (setq epg-pinentry-mode 'loopback)
   (setq epg-gpg-program "/opt/homebrew/bin/gpg"))
+
+;; pi-coding-agent: Emacs frontend for pi
+(use-package! pi-coding-agent
+  :init (defalias 'pi 'pi-coding-agent)
+  :config
+  (defun pi-agent--in-input-buffer (cmd)
+    "Run CMD interactively, switching to the pi input buffer first."
+    (lambda () (interactive)
+      (when-let ((buf (pi-coding-agent--get-input-buffer)))
+        (with-current-buffer buf
+          (call-interactively cmd)))))
+  (map! :leader
+        :prefix ("y" . "pi agent")
+        :desc "Send"               "RET" (pi-agent--in-input-buffer #'pi-coding-agent-send)
+        :desc "Send"               "SPC" (pi-agent--in-input-buffer #'pi-coding-agent-send)
+        :desc "Select model"       "m"   (pi-agent--in-input-buffer #'pi-coding-agent-select-model)
+        :desc "Cycle thinking"     "t"   (pi-agent--in-input-buffer #'pi-coding-agent-cycle-thinking)
+        :desc "Select level"       "T"   (pi-agent--in-input-buffer #'pi-coding-agent-select-thinking-level)
+        :desc "Hide thinking"      "h"   (pi-agent--in-input-buffer #'pi-coding-agent-toggle-hide-thinking)
+        :desc "Hide tools+results" "X"   (pi-agent--in-input-buffer #'pi-coding-agent-toggle-hide-tool-calls-and-results)
+        :desc "Hide results"       "x"   (pi-agent--in-input-buffer #'pi-coding-agent-toggle-hide-tool-results)
+        :desc "New session"        "n"   (pi-agent--in-input-buffer #'pi-coding-agent-new-session)
+        :desc "Resume session"     "r"   (pi-agent--in-input-buffer #'pi-coding-agent-resume-session)
+        :desc "Reload"             "R"   (pi-agent--in-input-buffer #'pi-coding-agent-reload)
+        :desc "Name session"       "N"   (pi-agent--in-input-buffer #'pi-coding-agent-set-session-name)
+        :desc "Compact"            "c"   (pi-agent--in-input-buffer #'pi-coding-agent-compact)
+        :desc "Fork"               "f"   (pi-agent--in-input-buffer #'pi-coding-agent-fork)
+        :desc "Quit"               "Q"   (pi-agent--in-input-buffer #'pi-coding-agent-quit)))
+
+;; Anvil — MCP server for Emacs
+(require 'anvil)
+(anvil-enable)
+(require 'anvil-server-commands)
+(anvil-server-start)
+
+;; Anvil org file scoping
+(setq anvil-org-allowed-files
+      (list (expand-file-name "~/org")
+            (expand-file-name "~/mg")
+            (expand-file-name "~/self")))
