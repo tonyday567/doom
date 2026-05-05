@@ -114,6 +114,4 @@
 (package! pi-coding-agent
   :recipe (:host github :repo "dnouri/pi-coding-agent"))
 
-;; Anvil — MCP server for Emacs
-(package! anvil
-  :recipe (:host github :repo "zawatton/anvil.el" :branch "v0.1.0"))
+

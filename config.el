@@ -804,14 +804,4 @@ If BIGWORD is non-nil, move by WORDS."
         :desc "Fork"               "f"   (pi-agent--in-input-buffer #'pi-coding-agent-fork)
         :desc "Quit"               "Q"   (pi-agent--in-input-buffer #'pi-coding-agent-quit)))
 
-;; Anvil — MCP server for Emacs
-(require 'anvil)
-(anvil-enable)
-(require 'anvil-server-commands)
-(anvil-server-start)
 
-;; Anvil org file scoping
-(setq anvil-org-allowed-files
-      (list (expand-file-name "~/org")
-            (expand-file-name "~/mg")
-            (expand-file-name "~/self")))
