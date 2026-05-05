@@ -71,20 +71,10 @@
            :repo "magthe/lsp-haskell"
   :branch "master"))
 
-(package! haskell-ng-mode
-  :recipe (:host gitlab
-           :repo "tonyday567/haskell-ng-mode"
-           :branch "lite-fixes"))
-
-(package! ob-haskell-ng
-  :recipe (:host github
-           :repo "tonyday567/ob-haskell-ng"
-           :branch "main"))
-
 (package! haskell-lite
   :recipe (:host github
            :repo "tonyday567/haskell-lite"
-           :branch "main"))
+           :branch "stand-alone"))
 
 (package! tidal
   :recipe (:host github :repo "tonyday567/Tidal" :branch "haskell-ng"))

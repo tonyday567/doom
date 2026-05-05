@@ -627,7 +627,9 @@ If BIGWORD is non-nil, move by WORDS."
 (after! treesit
 (use-package! haskell-ng-mode
   :diminish haskell-ng-mode
-  ;; :load-path "~/repos/haskell-ng-mode"
+  ;; haskell-ng-mode, haskell-ng-repl-mode, cabal-ng-mode,
+  ;; cabal-ng-consult, cabal-ng-goto, and ob-haskell-lite
+  ;; are all bundled in the haskell-lite package
   :init
   (add-to-list 'treesit-language-source-alist '(haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
   ; (add-to-list 'treesit-language-source-alist '(cabal ("https://gitlab.com/magus/tree-sitter-cabal.git" "main" "src" "gcc-13" "c++-13")))
