@@ -72,9 +72,7 @@
   :branch "master"))
 
 (package! haskell-lite
-  :recipe (:host github
-           :repo "tonyday567/haskell-lite"
-           :branch "stand-alone"))
+  :recipe (:local-repo "~/other/haskell-lite"))
 
 (package! tidal
   :recipe (:host github :repo "tonyday567/Tidal" :branch "haskell-ng"))
@@ -90,9 +88,6 @@
            :repo "karthink/gptel"
            :branch "master"))
 
-;; (package! haskell-ng-mode
-;;  :recipe (:local-repo "~/repos/haskell-ng-mode"
-;;  :build (:not compile)))
 
 ; https://github.com/doomemacs/doomemacs/issues/8089
 (package! compat :pin "9a234d0")

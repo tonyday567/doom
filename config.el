@@ -112,15 +112,19 @@
        :desc "Weave (⧈)"      "w" (lambda () (interactive) (insert "⧈"))
        :desc "Hexagon (⬡)"    "h" (lambda () (interactive) (insert "⬡"))
        :desc "Lozenge (◊)"    "l" (lambda () (interactive) (insert "◊"))
-       :desc "Right gate (⟞)" "]" (lambda () (interactive) (insert "⟞")))
+       :desc "Right gate (⟞)" "]" (lambda () (interactive) (insert "⟞"))
+       :desc "Eta (η)"         "n" (lambda () (interactive) (insert "η"))
+       :desc "Epsilon (ε)"    "c" (lambda () (interactive) (insert "ε")))
       ;; symbols from circuits
       (:prefix ("s" . "symbol")
-       :desc "Lift (η)"    "l" (lambda () (interactive) (insert "η"))
-       :desc "Lower (ε)"   "w" (lambda () (interactive) (insert "ε"))
+       :desc "Lift (↑)"    "l" (lambda () (interactive) (insert "↑"))
+       :desc "Lower (↓)"   "w" (lambda () (interactive) (insert "↓"))
+       :desc "Base (○)"    "b" (lambda () (interactive) (insert "○"))
        :desc "Compose (⊙)" "." (lambda () (interactive) (insert "⊙"))
        :desc "Push (⊲)"    "p" (lambda () (interactive) (insert "⊲"))
-       :desc "Run (⥁)"     "r" (lambda () (interactive) (insert "⥁"))
+       :desc "Invoke (⇸)"  "i" (lambda () (interactive) (insert "⇸"))
        :desc "Loop (↬)"    "o" (lambda () (interactive) (insert "↬"))
+       :desc "Run (⥁)"     "r" (lambda () (interactive) (insert "⥁"))
        :desc "Trace (⥀)"   "t" (lambda () (interactive) (insert "⥀"))
        :desc "Untrace (↯)" "u" (lambda () (interactive) (insert "↯"))))
 
@@ -725,14 +729,10 @@ If BIGWORD is non-nil, move by WORDS."
   )
  )
 
-(use-package! ob-haskell-ng
-  ;; :load-path "~/repos/ob-haskell-ng"
-  :config
-  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
-)
-
 (use-package! haskell-lite
   ; :load-path "~/repos/haskell-lite"
+  :config
+  (setq org-babel-default-header-args '((:results . "replace output") (:exports . "both")))
 )
 
   (after! org
