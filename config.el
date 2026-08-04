@@ -760,12 +760,17 @@ If BIGWORD is non-nil, move by WORDS."
          :nvm "b" #'haskell-lite-repl-show)))
 
 (use-package! tidal
-    :init
-    (progn
-      (setq tidal-interpreter "ghci")
-      (setq tidal-interpreter-arguments (list "ghci" "-XOverloadedStrings" "-package" "tidal"))
-      (setq tidal-boot-script-path "~/.config/emacs/.local/straight/repos/Tidal/BootTidal.hs")
-      ))
+  :init
+  (setq tidal-interpreter "ghci"
+        ;; Named package-env: tidal 1.10 visible only when this flag is set
+        ;; (does not pollute global ~/.ghc/.../environments/default).
+        tidal-interpreter-arguments
+        (list "ghci"
+              "-package-env" (expand-file-name "~/other/Tidal/tidal.env")
+              "-XOverloadedStrings"
+              "-package" "tidal")
+        tidal-boot-script-path
+        (expand-file-name "~/other/Tidal/BootTidal.hs")))
 
 (use-package! gptel
   :config
@@ -788,22 +793,163 @@ If BIGWORD is non-nil, move by WORDS."
       (when-let ((buf (pi-coding-agent--get-input-buffer)))
         (with-current-buffer buf
           (call-interactively cmd)))))
-  (map! :leader
-        :prefix ("y" . "pi agent")
-        :desc "Send"               "RET" (pi-agent--in-input-buffer #'pi-coding-agent-send)
-        :desc "Send"               "SPC" (pi-agent--in-input-buffer #'pi-coding-agent-send)
-        :desc "Select model"       "m"   (pi-agent--in-input-buffer #'pi-coding-agent-select-model)
-        :desc "Cycle thinking"     "t"   (pi-agent--in-input-buffer #'pi-coding-agent-cycle-thinking)
-        :desc "Select level"       "T"   (pi-agent--in-input-buffer #'pi-coding-agent-select-thinking-level)
-        :desc "Hide thinking"      "h"   (pi-agent--in-input-buffer #'pi-coding-agent-toggle-hide-thinking)
-        :desc "Hide tools+results" "X"   (pi-agent--in-input-buffer #'pi-coding-agent-toggle-hide-tool-calls-and-results)
-        :desc "Hide results"       "x"   (pi-agent--in-input-buffer #'pi-coding-agent-toggle-hide-tool-results)
-        :desc "New session"        "n"   (pi-agent--in-input-buffer #'pi-coding-agent-new-session)
-        :desc "Resume session"     "r"   (pi-agent--in-input-buffer #'pi-coding-agent-resume-session)
-        :desc "Reload"             "R"   (pi-agent--in-input-buffer #'pi-coding-agent-reload)
-        :desc "Name session"       "N"   (pi-agent--in-input-buffer #'pi-coding-agent-set-session-name)
-        :desc "Compact"            "c"   (pi-agent--in-input-buffer #'pi-coding-agent-compact)
-        :desc "Fork"               "f"   (pi-agent--in-input-buffer #'pi-coding-agent-fork)
-        :desc "Quit"               "Q"   (pi-agent--in-input-buffer #'pi-coding-agent-quit)))
+  ;; SPC y keymap removed; free-agent-bus now lives on SPC y.
 
+;; Live Markdown + Mermaid preview via xwidget (requires xwidget-internal)
+;; C-c C-c x is markdown-mode-command-map; also bind Doom localleader SPC m x
+;;
+;; Pandoc emits <pre class="mermaid"><code>…</code></pre> with HTML entities.
+;; Mermaid 11 only accepts graph source as direct text of .mermaid (no nested
+;; <code>). Unwrap + decode before xwidget loads the file.
+(defun mg/html-unescape (s)
+  "Decode common HTML entities in S (order-safe for &amp;)."
+  (let* ((s (replace-regexp-in-string "&lt;" "<" s t t))
+         (s (replace-regexp-in-string "&gt;" ">" s t t))
+         (s (replace-regexp-in-string "&quot;" "\"" s t t))
+         (s (replace-regexp-in-string "&#39;" "'" s t t))
+         (s (replace-regexp-in-string "&#x27;" "'" s t t))
+         (s (replace-regexp-in-string "&amp;" "&" s t t)))
+    s))
+
+(defun mg/markdown-xwidget-inline-local-svgs (html-file)
+  "Replace local relative <img src=*.svg> with inlined <svg> markup.
+
+PreferHud uses @media (prefers-color-scheme:…). WebKit often does **not**
+apply that correctly for SVG-as-<img> (file:// gallery embeds), so axes stay
+dark-on-dark. Inlined SVG shares the document and media queries work."
+  (let ((dir (file-name-directory (expand-file-name html-file))))
+    (goto-char (point-min))
+    (while (re-search-forward
+            "<img\\([^>]*\\)src=\"\\([^\"#?]+\\.svg\\)\"\\([^>]*\\)/?>"
+            nil t)
+      (let* ((pre (match-string 1))
+             (src (match-string 2))
+             (post (match-string 3))
+             (path (expand-file-name src dir))
+             (alt (if (string-match "alt=\"\\([^\"]*\\)\"" (concat pre " " post))
+                      (match-string 1 (concat pre " " post))
+                    (file-name-base src))))
+        (when (and (not (string-match-p "\\`\\(https?:\\|data:\\|file:\\)" src))
+                   (file-readable-p path))
+          (let* ((raw (with-temp-buffer
+                        (insert-file-contents path)
+                        (buffer-string)))
+                 (svg (replace-regexp-in-string
+                       "\\`<\\?xml[^>]*>[[:space:]]*" "" raw t t))
+                 ;; PreferHud CSS targets `svg {…}`; keep root element
+                 (svg (replace-regexp-in-string
+                       "\\`<svg\\>"
+                       "<svg class=\"mg-chart-svg\""
+                       svg t t)))
+            (replace-match
+             (concat "<div class=\"mg-svg-wrap\" data-src=\"" src
+                     "\" role=\"img\" aria-label=\"" alt "\">\n"
+                     svg
+                     "\n</div>")
+             t t)))))))
+
+(defun mg/markdown-xwidget-fix-html (file)
+  "Fix pandoc HTML: mermaid, inline local SVGs, reload on color-scheme change."
+  (when (and file (file-readable-p file))
+    (with-temp-file file
+      (insert-file-contents file)
+      ;; Drop pandoc stderr that sometimes lands in the body
+      (goto-char (point-min))
+      (while (re-search-forward
+              "^\\[WARNING\\][^\n]*\n" nil t)
+        (replace-match "" t t))
+      ;; Unwrap <pre class="mermaid"><code>…</code></pre>
+      (goto-char (point-min))
+      (while (re-search-forward
+              "<pre class=\"mermaid\"><code>\\(\\(?:.\\|\n\\)*?\\)</code></pre>"
+              nil t)
+        (let ((inner (mg/html-unescape (match-string 1))))
+          (replace-match (concat "<pre class=\"mermaid\">\n"
+                                 inner
+                                 "\n</pre>")
+                         t t)))
+      ;; Inline chart-svg (and any local) SVGs — PreferHud needs this
+      (mg/markdown-xwidget-inline-local-svgs file)
+      ;; Layout + scheme-change reload
+      (goto-char (point-max))
+      (when (re-search-backward "</body>" nil t)
+        (insert
+         "<style>
+.mg-svg-wrap { margin: 1em 0; max-width: 100%; overflow-x: auto; }
+.mg-svg-wrap svg.mg-chart-svg { max-width: 100%; height: auto; display: block; }
+</style>
+<script>
+(function () {
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  function onScheme() { location.reload(); }
+  if (mq.addEventListener) mq.addEventListener('change', onScheme);
+  else if (mq.addListener) mq.addListener(onScheme);
+})();
+</script>\n")))))
+
+(defun mg/xwidget-webkit-reload-all (&rest _)
+  "Reload every xwidget-webkit buffer (system appearance / theme follow-up).
+
+Callable via M-x. Also hooked on `ns-system-appearance-change-functions'
+so macOS light/dark flips repaint PreferHud SVGs. Emacs theme toggles do
+not change WebKit prefers-color-scheme — use this command after those."
+  (interactive)
+  (let ((n 0))
+    (dolist (buf (buffer-list))
+      (when (buffer-live-p buf)
+        (with-current-buffer buf
+          (when (derived-mode-p 'xwidget-webkit-mode)
+            (ignore-errors (xwidget-webkit-reload))
+            (setq n (1+ n))))))
+    (message "mg/xwidget-webkit-reload-all: reloaded %d xwidget buffer(s)" n)
+    n))
+
+(defun mg/markdown-xwidget-preview (file)
+  "Like `markdown-xwidget-preview' after mermaid HTML fixups."
+  (mg/markdown-xwidget-fix-html file)
+  (markdown-xwidget-preview file))
+
+(use-package! markdown-xwidget
+  :after markdown-mode
+  :bind (:map markdown-mode-command-map
+              ("x" . markdown-xwidget-preview-mode))
+  :config
+  (setq markdown-xwidget-github-theme "dark"
+        markdown-xwidget-mermaid-theme "dark")
+  (map! :map markdown-mode-map
+        :localleader
+        :desc "xwidget preview" "x" #'markdown-xwidget-preview-mode)
+  ;; Prefer our preview entry so fixups always run
+  (advice-add 'markdown-xwidget-preview :around
+              (lambda (orig file)
+                (mg/markdown-xwidget-fix-html file)
+                (funcall orig file))))
+
+;; System light/dark (macOS): repaint PreferHud SVGs in open xwidget previews.
+;; WebKit uses OS prefers-color-scheme, not the Emacs theme — so ef-themes /
+;; doom theme toggles will not recolour charts unless you also flip macOS
+;; appearance (or M-x mg/xwidget-webkit-reload-all).
+(when (boundp 'ns-system-appearance-change-functions)
+  (add-hook 'ns-system-appearance-change-functions
+            #'mg/xwidget-webkit-reload-all))
+
+;; Manual reload (also works when appearance hook does not fire)
+(map! :leader
+      :desc "Reload xwidget previews" "t x" #'mg/xwidget-webkit-reload-all)
+
+;; free-agent-bus deck (new global-log runtime; now on SPC y)
+(load (expand-file-name "~/haskell/free-agent/free-agent-bus-deck.el"))
+(setq free-agent-bus-root "~/.config/free-agent-bus")
+(setq free-agent-bus-name "tony")
+(setq free-agent-bus-channel "bus")
+(setq free-agent-bus-log-show-timestamps nil)
+
+(map! :leader
+      :prefix ("y" . "free-agent-bus")
+      :desc "send region/buffer" "RET" #'free-agent-bus-send
+      :desc "send region/buffer" "SPC" #'free-agent-bus-send
+      :desc "open post"          "p"   #'free-agent-bus-post
+      :desc "open log"           "l"   #'free-agent-bus-log
+      :desc "open deck"          "d"   #'free-agent-bus-deck
+      :desc "quit deck"          "q"   #'free-agent-bus-deck-quit)
 
