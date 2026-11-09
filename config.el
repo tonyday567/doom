@@ -794,6 +794,7 @@ If BIGWORD is non-nil, move by WORDS."
         (with-current-buffer buf
           (call-interactively cmd)))))
   ;; SPC y keymap removed; free-agent-bus now lives on SPC y.
+  )
 
 ;; Live Markdown + Mermaid preview via xwidget (requires xwidget-internal)
 ;; C-c C-c x is markdown-mode-command-map; also bind Doom localleader SPC m x
@@ -937,19 +938,13 @@ not change WebKit prefers-color-scheme — use this command after those."
 (map! :leader
       :desc "Reload xwidget previews" "t x" #'mg/xwidget-webkit-reload-all)
 
-;; free-agent-bus deck (new global-log runtime; now on SPC y)
-(load (expand-file-name "~/haskell/free-agent/free-agent-bus-deck.el"))
-(setq free-agent-bus-root "~/.config/free-agent-bus")
-(setq free-agent-bus-name "tony")
-(setq free-agent-bus-channel "bus")
-(setq free-agent-bus-log-show-timestamps nil)
+;; fab status (SPC y s opens fab-open-status)
+(load (expand-file-name "~/haskell/free-agent/fab.el"))
+(setq fab-root "~/net")
+(setq fab-executable "free-agent")
+(setq fab-name "runner")
 
 (map! :leader
       :prefix ("y" . "free-agent-bus")
-      :desc "send region/buffer" "RET" #'free-agent-bus-send
-      :desc "send region/buffer" "SPC" #'free-agent-bus-send
-      :desc "open post"          "p"   #'free-agent-bus-post
-      :desc "open log"           "l"   #'free-agent-bus-log
-      :desc "open deck"          "d"   #'free-agent-bus-deck
-      :desc "quit deck"          "q"   #'free-agent-bus-deck-quit)
+      :desc "live bus status" "s" #'fab-open-status)
 
